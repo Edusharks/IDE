@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; connect-src 'self' https://mp.tasks.vision; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self';">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation IDE</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="src/renderer/styles/ide.css">
+    <link rel="stylesheet" href="src/renderer/styles/simulation.css">
+    <script src="src/renderer/theme-loader.js"></script>
+</head>
+<body>
+    <div class="ide-container">
+        <aside class="left-sidebar">
+            <div class="sidebar-header">
+                 <div class="project-info">
+                    <button id="back-to-projects-btn" class="btn icon-btn" title="Back to Projects">
+                        <svg viewBox="0 0 24 24"><path d="M19 12H5" /><path d="m12 19-7-7 7-7" /></svg>
+                    </button>
+                    <h1 id="sim-project-name">Simulation Project</h1>
+                </div>
+            </div>
+            <div class="stage-container">
+                <div class="stage-header">
+                    <button id="green-flag-btn" class="stage-control-btn" title="Run Project (Go)">
+                        <svg viewBox="0 0 24 24"><path d="M6,2L20,12L6,22V2Z" fill="#10B981"/></svg>
+                    </button>
+                    <button id="stop-btn" class="stage-control-btn" title="Stop Project">
+                         <svg viewBox="0 0 24 24"><path d="M18,18H6V6H18V18Z" fill="#EF4444"/></svg>
+                    </button>
+                </div>
+                <div class="sim-stage-area">
+                    <video id="video-feed" playsinline style="display: none; position: absolute; transform: scaleX(-1); width: calc(100% - 6px); height: calc(100% - 6px); border-radius: 8px; z-index: 0;"></video>
+                    <canvas id="pen-canvas"></canvas>
+                    <canvas id="simulation-stage"></canvas>
+                </div>
+            </div>
+            <div class="sprite-pane">
+                <div class="sprite-list-container">
+                     <div class="list-header">
+                        <h3>Stage & Sprites</h3>
+                        <button id="add-sprite-btn" class="btn icon-btn" title="Add Sprite">+</button>
+                    </div>
+                    <div class="target-list">
+                        <div id="stage-thumbnail-container"></div>
+                        <div class="sprite-list"></div>
+                    </div>
+                </div>
+                <div class="sprite-inspector">
+                    <h3 id="inspector-title">Sprite</h3>
+                    <div class="inspector-grid">
+                        <div class="form-group"><label>Name</label><input type="text" id="sprite-name-input" value="Sprite1"></div>
+                        <div class="form-group sprite-only-field"><label>X</label><input type="number" id="sprite-x-input" value="0"></div>
+                        <div class="form-group sprite-only-field"><label>Y</label><input type="number" id="sprite-y-input" value="0"></div>
+                        <div class="form-group sprite-only-field"><label>Show</label><input type="checkbox" id="sprite-visible-input" checked></div>
+                        <div class="form-group sprite-only-field"><label>Size</label><input type="number" id="sprite-size-input" value="100" min="0"></div>
+                        <div class="form-group sprite-only-field"><label>Direction</label><input type="number" id="sprite-direction-input" value="90"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div id="blocklyArea"></div>
+        </main>
+        <aside class="assets-panel">
+            <div class="assets-header"> <h2 id="assets-title">Assets</h2> </div>
+            <div class="assets-list" id="assets-list-container"></div>
+        </aside>
+    </div>
+
+    <!-- 
+      IMPORTANT: All scripts are now loaded from CDNs or local files.
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js"></script>
+    <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/msg/en.js"></script>
+    
+    <script src="src/renderer/simulation-runtime.js"></script>
+    <script src="src/renderer/blockly/simulation-blocks.js"></script>
+    <script src="src/renderer/blockly/simulation-generators.js"></script>
+    <script src="src/renderer/blockly/blockly-simulation-init.js"></script>
+    <script type="module" src="src/renderer/simulation-ide.js"></script>
+
+    <!-- Modals -->
+    <div id="custom-prompt-modal" class="modal-backdrop" style="display: none;"><div class="modal-content"><p id="custom-prompt-message"></p><input type="text" id="custom-prompt-input"><div class="modal-buttons"><button id="custom-prompt-ok" class="btn primary">OK</button><button id="custom-prompt-cancel" class="btn">Cancel</button></div></div></div>
+    <div id="custom-confirm-modal" class="modal-backdrop" style="display: none;"><div class="modal-content"><p id="custom-confirm-message"></p><div class="modal-buttons"><button id="custom-confirm-yes" class="btn primary">Yes</button><button id="custom-confirm-no" class="btn">No</button></div></div></div>
+    <div id="extension-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content extension-modal-content">
+            <div class="modal-header">
+                <h2>Choose an Extension</h2>
+                <button id="extension-modal-close-btn" class="titlebar-btn">&times;</button>
+            </div>
+            <div id="extension-list" class="extension-list"></div>
+        </div>
+    </div>
+</body>
+</html>
