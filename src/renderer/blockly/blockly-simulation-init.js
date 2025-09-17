@@ -306,7 +306,7 @@ function initializeSimulationBlockly() {
     const workspace = Blockly.inject(blocklyArea, {
         theme: SimIdeTheme,
         toolbox: spriteToolbox, // Start with the sprite toolbox by default
-        media: 'src/renderer/assets/blockly/media/',
+        media: 'https://unpkg.com/blockly/media/',
         sounds: true,
         renderer: 'zelos',
         grid: {
