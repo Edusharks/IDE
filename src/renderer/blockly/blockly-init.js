@@ -611,7 +611,7 @@ class BlocklyWorkspace {
         this.workspace = Blockly.inject('blocklyArea', {
             theme: Esp32IdeTheme,
             toolbox: this.toolbox, 
-            media: 'https://unpkg.com/blockly/media/',
+            media: 'src/renderer/assets/blockly',
             sounds: true,
             renderer: 'zelos',
             grid: {
