@@ -145,12 +145,7 @@ initializeUI() {
     }
 
     updateViewPositions() {
-        const toolbox = document.querySelector('.blocklyToolboxDiv');
-        if(toolbox) {
-            const toolboxWidth = toolbox.offsetWidth;
-            this.ui.codeView.style.left = `${toolboxWidth}px`;
-            this.ui.consoleView.style.left = `${toolboxWidth}px`;
-        }
+        
     }
 
     setupWorkspaceListeners() {
@@ -159,8 +154,8 @@ initializeUI() {
             this.analyzeAiBlockUsage();
 
             if (window.blockyManagerInstance && window.blockyManagerInstance.workspace) {
-    const workspace = window.blockyManagerInstance.workspace;
-    workspace.addChangeListener((event) => {
+        const workspace = window.blockyManagerInstance.workspace;
+        workspace.addChangeListener((event) => {
         if (event.isUiEvent || event.type === Blockly.Events.FINISHED_LOADING) return;
         
         const block = workspace.getBlockById(event.blockId);
@@ -214,20 +209,20 @@ initializeUI() {
         this.ui.aiMonitorCloseBtn.addEventListener('click', () => this.toggleAiMonitorModal(false));
 
 
-this.ui.aiMonitorToggles.forEach(toggle => {
-    toggle.addEventListener('click', () => {
-        const model = toggle.dataset.model;
-        if (toggle.classList.contains('active')) {
-            this.activeMonitorModel = null;
-            toggle.classList.remove('active');
-        } else {
-            this.activeMonitorModel = model;
-            this.ui.aiMonitorToggles.forEach(t => t.classList.remove('active'));
-            toggle.classList.add('active');
-        }
-    });
-});
-        window.addEventListener('resize', () => this.updateViewPositions());
+        this.ui.aiMonitorToggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
+           const model = toggle.dataset.model;
+           if (toggle.classList.contains('active')) {
+              this.activeMonitorModel = null;
+              toggle.classList.remove('active');
+           } else {
+              this.activeMonitorModel = model;
+              this.ui.aiMonitorToggles.forEach(t => t.classList.remove('active'));
+              toggle.classList.add('active');
+            }
+          });
+        });
+         
 
         document.getElementById('clear-console-btn').addEventListener('click', () => {
             this.ui.consoleOutput.innerHTML = '';
@@ -346,7 +341,8 @@ this.ui.aiMonitorToggles.forEach(toggle => {
             const filesetResolver = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm");
             this.imageClassifier = await ImageClassifier.createFromOptions(filesetResolver, {
                 baseOptions: { 
-                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/image_classifier/efficientnet_lite0/float16/1/efficientnet_lite0.tflite", 
+                    // UPDATED THE URL IN THE LINE BELOW
+                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/image_classifier/efficientnet_lite0/float32/latest/efficientnet_lite0.tflite", 
                     delegate: "GPU" 
                 },
                 runningMode: "VIDEO", maxResults: 1
@@ -366,7 +362,8 @@ this.ui.aiMonitorToggles.forEach(toggle => {
             const filesetResolver = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm");
             this.objectDetector = await ObjectDetector.createFromOptions(filesetResolver, {
                 baseOptions: { 
-                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite", 
+                    // UPDATED THE URL IN THE LINE BELOW
+                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float32/latest/efficientdet_lite0.tflite", 
                     delegate: "GPU" 
                 },
                 runningMode: "VIDEO",
@@ -458,45 +455,83 @@ async startAiVision(isMonitoringOnly = false) {
 
         const startTimeMs = performance.now();
         const results = {};
-        if (this.faceLandmarker) {
+        const isModalOpen = this.ui.aiMonitorModal.style.display === 'flex';
+
+        // --- MODIFICATION 1: EFFICIENT PREDICTION ---
+        // Only run models if the monitor is open OR if they are required by a block.
+
+        if (this.faceLandmarker && (isModalOpen || this.aiRequirements.needsFaceCount || this.aiRequirements.needsBlendshapes)) {
             results.faceLandmarker = this.faceLandmarker.detectForVideo(video, startTimeMs);
         }
-        if (this.gestureRecognizer) {
+        if (this.gestureRecognizer && (isModalOpen || this.aiRequirements.needsGestures || this.aiRequirements.needsHands)) {
             results.gestureRecognizer = this.gestureRecognizer.recognizeForVideo(video, startTimeMs);
         }
-        if (this.imageClassifier) {
+        if (this.imageClassifier && (isModalOpen || this.aiRequirements.needsClassification)) {
             results.imageClassifier = this.imageClassifier.classifyForVideo(video, startTimeMs);
         }
-        if (this.objectDetector) {
+        if (this.objectDetector && (isModalOpen || this.aiRequirements.needsObjectDetection)) {
             results.objectDetector = this.objectDetector.detectForVideo(video, startTimeMs);
         }
         
-const isModalOpen = this.ui.aiMonitorModal.style.display === 'flex';
-const canvases = [this.sidebarCanvasCtx];
-if (isModalOpen) canvases.push(this.aiMonitorCanvasCtx);
+        // --- MODIFICATION 2: CONTEXT-AWARE DRAWING ---
+        const canvases = [ { ctx: this.sidebarCanvasCtx, isSidebar: true } ];
+        if (isModalOpen) {
+            canvases.push({ ctx: this.aiMonitorCanvasCtx, isSidebar: false });
+        }
 
-for (const ctx of canvases) {
-    ctx.save();
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    const drawingUtils = new DrawingUtils(ctx);
-    const activeModel = isModalOpen ? this.activeMonitorModel : null;
+        for (const { ctx, isSidebar } of canvases) {
+            ctx.save();
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            
+            if (!isSidebar) {
+                ctx.drawImage(video, 0, 0, ctx.canvas.width, ctx.canvas.height);
+            }
+            
+            const drawingUtils = new DrawingUtils(ctx);
 
-    if ((!activeModel || activeModel === 'face') && results.faceLandmarker && results.faceLandmarker.faceLandmarks) {
-        for (const landmarks of results.faceLandmarker.faceLandmarks) {
-            drawingUtils.drawConnectors(landmarks, FaceLandmarker.FACE_LANDMARKS_TESSELATION, { color: "#C0C0C070", lineWidth: 1 });
-        }
-    }
-    if ((!activeModel || activeModel === 'hand') && results.gestureRecognizer && results.gestureRecognizer.landmarks) {
-        for (const landmarks of results.gestureRecognizer.landmarks) {
-            drawingUtils.drawConnectors(landmarks, GestureRecognizer.HAND_CONNECTIONS, { color: "#FFC107", lineWidth: 3 });
-        }
-    }
-    if ((!activeModel || activeModel === 'detection') && results.objectDetector && results.objectDetector.detections) {
-         for (const detection of results.objectDetector.detections) {
-            drawingUtils.drawBoundingBox(detection.boundingBox, { color: "#FF5370", lineWidth: 2, fillColor: "#FF537020" });
-            drawingUtils.drawCategory(detection.categories[0], detection.boundingBox, { color: "#FFFFFF", fontColor: "#000000", fontSize: 14 });
-        }
-    }    
+            // Conditionally draw Face Landmarks
+            if (results.faceLandmarker?.faceLandmarks) {
+                // Only draw in monitor if 'face' is the active model
+                const shouldDraw = isSidebar ? (this.aiRequirements.needsFaceCount || this.aiRequirements.needsBlendshapes) : (this.activeMonitorModel === 'face');
+                if (shouldDraw) {
+                    for (const landmarks of results.faceLandmarker.faceLandmarks) {
+                        drawingUtils.drawConnectors(landmarks, FaceLandmarker.FACE_LANDMARKS_TESSELATION, { color: "#C0C0C070", lineWidth: 1 });
+                    }
+                }
+            }
+            
+            // Conditionally draw Hand Gestures
+            if (results.gestureRecognizer?.landmarks) {
+                 // Only draw in monitor if 'hand' is the active model
+                const shouldDraw = isSidebar ? (this.aiRequirements.needsGestures || this.aiRequirements.needsHands) : (this.activeMonitorModel === 'hand');
+                if (shouldDraw) {
+                    for (const landmarks of results.gestureRecognizer.landmarks) {
+                        drawingUtils.drawConnectors(landmarks, GestureRecognizer.HAND_CONNECTIONS, { color: "#FFC107", lineWidth: 3 });
+                    }
+                }
+            }
+            
+            // Conditionally draw Object Detection
+            if (results.objectDetector?.detections) {
+                 // Only draw in monitor if 'detection' is the active model
+                const shouldDraw = isSidebar ? this.aiRequirements.needsObjectDetection : (this.activeMonitorModel === 'detection');
+                if (shouldDraw) {
+                    for (const detection of results.objectDetector.detections) {
+                        drawingUtils.drawBoundingBox(detection.boundingBox, { color: "#FF5370", lineWidth: 2, fillColor: "#FF537020" });
+                        const label = `${detection.categories[0].categoryName} (${Math.round(detection.categories[0].score * 100)}%)`;
+                        const x = detection.boundingBox.originX * ctx.canvas.width;
+                        const y = detection.boundingBox.originY * ctx.canvas.height;
+                        const textHeight = 18;
+                        ctx.font = "16px Nunito";
+                        const textWidth = ctx.measureText(label).width;
+                        ctx.fillStyle = "#FF5370";
+                        ctx.fillRect(x, y, textWidth + 8, textHeight);
+                        ctx.fillStyle = "#FFFFFF";
+                        ctx.fillText(label, x + 4, y + 14);
+                    }
+                }
+            }
+            // --- MODIFICATION END ---
             ctx.restore();
         }
         
@@ -741,19 +776,30 @@ updateAiMonitorVisibility() {
                 const card = document.createElement('div');
                 card.className = 'extension-card';
                 card.dataset.extensionId = ext.id;
+
                 if (this.loadedExtensions.has(ext.id)) {
                     card.classList.add('added');
-                }
-                card.innerHTML = `
-                    <div class="extension-card-icon" style="background-color: ${ext.color};">${ext.icon}</div>
-                    <h3>${ext.name}</h3>
-                    <p>${ext.description}</p>`;
-                card.addEventListener('click', () => {
-                    if (!card.classList.contains('added')) {
+                    // MODIFIED: Add a remove button for added extensions
+                    card.innerHTML = `
+                        <div class="extension-card-icon" style="background-color: ${ext.color};">${ext.icon}</div>
+                        <h3>${ext.name}</h3>
+                        <p>${ext.description}</p>
+                        <button class="btn danger remove-ext-btn">Remove</button>
+                    `;
+                    card.querySelector('.remove-ext-btn').addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent the card's click event from firing
+                        this.removeExtension(ext.id);
+                    });
+                } else {
+                    card.innerHTML = `
+                        <div class="extension-card-icon" style="background-color: ${ext.color};">${ext.icon}</div>
+                        <h3>${ext.name}</h3>
+                        <p>${ext.description}</p>`;
+                    card.addEventListener('click', () => {
                         this.addExtension(ext.id);
                         this.ui.extensionModal.style.display = 'none';
-                    }
-                });
+                    });
+                }
                 this.ui.extensionList.appendChild(card);
             });
         }
@@ -761,14 +807,27 @@ updateAiMonitorVisibility() {
     }
     
     addExtension(extensionId) {
-        if (window.blockyManagerInstance) {
-            window.blockyManagerInstance.addExtensionCategory(extensionId);
-            this.loadedExtensions.add(extensionId);
-            this.saveExtensionsToCache();
-            this.addConsoleMessage(`Extension '${extensionId}' added.`, 'info');
-            this.updateAiMonitorVisibility();
-        }
+        if (this.loadedExtensions.has(extensionId) || !window.blockyManagerInstance) return;
+        this.loadedExtensions.add(extensionId);
+        window.blockyManagerInstance.rebuildAndApplyToolbox(this.loadedExtensions);
+        
+        this.saveExtensionsToCache();
+        this.addConsoleMessage(`Extension '${extensionId}' added.`, 'info');
+        this.updateAiMonitorVisibility();
     }
+    
+    removeExtension(extensionId) {
+        if (!this.loadedExtensions.has(extensionId) || !window.blockyManagerInstance) return;
+        this.loadedExtensions.delete(extensionId);
+        window.blockyManagerInstance.rebuildAndApplyToolbox(this.loadedExtensions);
+
+        this.saveExtensionsToCache();
+        this.addConsoleMessage(`Extension '${extensionId}' removed.`, 'info');
+        this.updateAiMonitorVisibility();
+        this.showExtensionModal();
+    }
+    
+    
 
     async handleDeviceConnection() {
         if (this.serialComm.isConnected) {
@@ -862,31 +921,37 @@ updateAiMonitorVisibility() {
     }
 
     switchView(viewName) {
+        // Deactivate all views first
         this.ui.codeView.classList.remove('active');
         this.ui.consoleView.classList.remove('active');
-        
-        const workspace = document.querySelector('.blocklyWorkspace');
-        const flyout = document.querySelector('.blocklyFlyout');
+
+        // Get a reference to the main blockly editor container
+        const blocklyArea = document.getElementById('blocklyArea');
         const isBlocksView = viewName === 'blocks';
 
-        if (workspace) workspace.style.visibility = isBlocksView ? 'visible' : 'hidden';
-        if (flyout) flyout.style.visibility = isBlocksView ? 'visible' : 'hidden';
+        // Toggle the display of the entire Blockly editor area
+        if (blocklyArea) {
+            blocklyArea.style.display = isBlocksView ? 'block' : 'none';
+        }
 
+        // Update the active state of the toggle buttons
         this.ui.blocksViewBtn.classList.toggle('active', isBlocksView);
         this.ui.codeViewBtn.classList.toggle('active', viewName === 'code');
         
+        // Activate the selected view
         if (viewName === 'code') {
-            this.updateViewPositions();
             this.ui.codeView.classList.add('active');
         } else if (viewName === 'console') {
-            this.updateViewPositions();
             this.ui.consoleView.classList.add('active');
         }
 
+        // IMPORTANT: When switching back to blocks, we must tell Blockly to resize itself.
         if (isBlocksView) {
             setTimeout(() => { 
-                if (window.blockyManagerInstance) Blockly.svgResize(window.blockyManagerInstance.workspace); 
-            }, 50);
+                if (window.blockyManagerInstance && window.blockyManagerInstance.workspace) {
+                     Blockly.svgResize(window.blockyManagerInstance.workspace);
+                }
+            }, 50); // A small delay ensures the element is fully visible before resizing.
         }
     }
     
@@ -1024,8 +1089,6 @@ updateAiMonitorVisibility() {
 
         this.showUploadModal('uploading');
         this.addConsoleMessage('Uploading to main.py...', 'info');
-        this.switchView('console');
-    
         try {
             await this.serialComm.sendData('\x03\x03'); 
             await new Promise(r => setTimeout(r, 200));
