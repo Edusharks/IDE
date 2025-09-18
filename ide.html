@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://unpkg.com; media-src 'self' https://unpkg.com; worker-src 'self' blob:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block IDE</title>
+    <link rel="stylesheet" href="src/renderer/styles/ide.css">
+    <link rel="icon" href="data:,">
+    <script src="src/renderer/theme-loader.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js"></script>
+    <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/python_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/msg/en.js"></script>
+    
+    <script src="src/renderer/blockly/basic-blocks.js"></script>
+    <script src="src/renderer/blockly/basic-generators.js"></script>
+    <script src="src/renderer/blockly/face-landmark-blocks.js"></script>
+    <script src="src/renderer/blockly/face-landmark-generators.js"></script>
+    <script src="src/renderer/blockly/hand-gesture-blocks.js"></script>
+    <script src="src/renderer/blockly/hand-gesture-generators.js"></script>
+    <script src="src/renderer/blockly/image-classification-blocks.js"></script>
+    <script src="src/renderer/blockly/image-classification-generators.js"></script> 
+    <script src="src/renderer/blockly/object-detection-blocks.js"></script>
+    <script src="src/renderer/blockly/object-detection-generators.js"></script>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const boardId = params.get('board') || 'esp32';
+      const board = ['esp32', 'pico'].includes(boardId) ? boardId : 'esp32';
+      
+      document.write(`<script src="src/renderer/blockly/${board}-blocks.js"><\/script>`);
+      document.write(`<script src="src/renderer/blockly/${board}-generators.js"><\/script>`);
+    </script>
+
+</head>
+
+<body>
+    <div class="ide-container">
+        <header class="main-header">
+            <div class="header-project-info">
+                <button id="back-to-projects-btn" class="btn icon-btn" title="Back to Projects">
+                    <svg viewBox="0 0 24 24"><path d="M19 12H5" /><path d="m12 19-7-7 7-7" /></svg>
+                </button>
+                <h1 id="current-project-name">Project Name</h1>
+            </div>
+            <div class="header-view-toggle">
+                <div class="view-toggle-btn-group">
+                    <button id="blocks-view-btn" class="view-toggle-btn active">BLOCKS</button>
+                    <button id="code-view-btn" class="view-toggle-btn">CODE</button>
+                </div>
+            </div>
+        </header>
+
+        <aside class="left-sidebar">
+                 <div class="sidebar-top">
+                    <button id="toggle-cam-btn" class="btn icon-btn camera-toggle-btn" title="Toggle Camera">
+                       <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.5 6.5 0 0 0 16 9.5A6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14z"/><path d="M2 8V4h4"/><path d="M22 8V4h-4"/><path d="M2 16v4h4"/><path d="M22 16v4h-4"/></svg>
+                   </button>
+                <div id="board-viewer-container" class="board-viewer">
+                    <img id="board-image" src="" alt="Selected Microcontroller Board">
+                    <video id="sidebar-webcam" playsinline autoplay muted></video>
+                    <canvas id="sidebar-canvas-overlay"></canvas>
+                </div>
+            </div>
+            <div class="sidebar-bottom">
+                <div class="connection-container">
+                    <div class="connect-button-group">
+                        <button id="connect-device" class="btn">Connect</button>
+                        <div id="connection-status-wrapper" class="connection-disconnected">
+                            <span>Disconnected</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-grid">
+                    <button id="console-btn" class="btn expandable">
+                        <svg viewBox="0 0 24 24"><path d="M18 10L12 16L6 10" /></svg>
+                        <span>Console</span>
+                    </button>
+                    <button id="ai-monitor-btn" class="btn expandable">
+                        <svg viewBox="0 0 24 24"><path d="M12 12a3 3 0 100-6 3 3 0 000 6z"/><path d="M20.9 19.8A10 10 0 103.1 4.2"/></svg>
+                        <span>AI Monitor</span>
+                    </button>
+                    <button id="save-project" class="btn">
+                        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        <span>Save Project</span>
+                    </button>
+                    <button id="upload-code" class="btn primary" disabled>
+                        <svg viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" /><path d="M12 12v9" /><path d="m16 16-4-4-4 4" /></svg>
+                        <span>Upload to Device</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <main class="main-content">
+            
+            
+            <div id="blocklyArea"></div>
+            <div id="code-view" class="view-wrapper"><pre id="code-display-pre" spellcheck="false"></pre><div class="code-actions"><button id="edit-code-btn" class="btn icon-btn" title="Edit Code"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button id="copy-code-btn" class="btn icon-btn" title="Copy Code"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button></div></div>
+            <div id="console-view" class="view-wrapper"><div class="view-header"><h3>Console</h3><button id="clear-console-btn" class="btn icon-btn" title="Clear Console"><svg viewBox="0 0 24 24"><path d="M20 5H4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1zM4 11h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1zm2 7h12a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/></svg></button></div><div class="console-output" id="console-output"></div><div class="console-input-wrapper"><span>></span><input type="text" id="console-input" placeholder="Type command and press Enter..." autocomplete="off"></div></div>
+        </main>
+    </div>
+    <!-- Modals -->
+    <div id="custom-prompt-modal" class="modal-backdrop" style="display: none;"><div class="modal-content"><p id="custom-prompt-message"></p><input type="text" id="custom-prompt-input"><div class="modal-buttons"><button id="custom-prompt-ok" class="btn primary">OK</button><button id="custom-prompt-cancel" class="btn">Cancel</button></div></div></div>
+    <div id="custom-confirm-modal" class="modal-backdrop" style="display: none;"><div class="modal-content"><p id="custom-confirm-message"></p><div class="modal-buttons"><button id="custom-confirm-yes" class="btn primary">Yes</button><button id="custom-confirm-no" class="btn">No</button></div></div></div>
+    <div id="upload-status-modal" class="modal-backdrop" style="display: none;"><div class="modal-content upload-status-content"><div id="upload-status-icon" class="upload-status-icon"></div><p id="upload-status-message">Uploading...</p></div></div>
+    <div id="extension-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content extension-modal-content">
+            <div class="modal-header">
+                <h2>Choose an Extension</h2>
+                <button id="extension-modal-close-btn" class="titlebar-btn">&times;</button>
+            </div>
+            <div id="extension-list" class="extension-list"></div>
+        </div>
+    </div>
+    <!-- NEW: AI Monitor Modal -->
+    <div id="ai-monitor-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content ai-monitor-content">
+            <div class="modal-header">
+                <h2>AI Vision Monitor</h2>
+                <button id="ai-monitor-close-btn" class="titlebar-btn">&times;</button>
+            </div>
+            <div class="ai-monitor-controls">
+            <button class="ai-monitor-toggle" data-model="face">Face Landmarks</button>
+            <button class="ai-monitor-toggle" data-model="hand">Hand Gesture</button>
+            <button class="ai-monitor-toggle" data-model="classification">Image Classify</button>
+            <button class="ai-monitor-toggle" data-model="detection">Object Detect</button>
+            </div>
+            <div class="ai-monitor-body">
+                <div class="ai-monitor-video-container">
+                    <canvas id="ai-monitor-canvas"></canvas>
+                </div>
+                <div class="ai-monitor-data-container">
+                    <pre id="ai-monitor-data-output"><p class="ai-monitor-placeholder">Waiting for data...</p></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="src/renderer/blockly/blockly-init.js"></script>
+    <script src="src/renderer/utils/serial-comm.js"></script>
+    <script src="src/renderer/utils/webrepl.js"></script>
+    <script type="module" src="src/renderer/ide.js"></script>
+</body>
+
+</html>
