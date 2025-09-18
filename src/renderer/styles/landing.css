@@ -81,8 +81,8 @@ body { font-family: var(--font-family); background-color: var(--bg-primary); col
 .titlebar-drag-region { -webkit-app-region: drag; height: 100%; }
 .app-header { background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-light); padding: 0.75rem 1.5rem; flex-shrink: 0; position: relative; z-index: 1000; }
 .header-content { display: flex; justify-content: space-between; align-items: center; }
-.logo { display: flex; align-items: center; gap: 0.75rem; font-weight: 800; font-size: 1.25rem; }
-.logo span { background: linear-gradient(45deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.logo { display: flex; align-items: center; font-weight: 800; font-size: 1.25rem; }
+.logo img { height: 55px; width: auto; }
 .titlebar-buttons { display: flex; }
 .app-header .titlebar-buttons { opacity: 1; }
 .titlebar-btn { width: 32px; height: 32px; border: none; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); border-radius: var(--radius-sm); -webkit-app-region: no-drag; transition: var(--transition); }
