@@ -270,60 +270,73 @@ body, html {
 .blocklyMainBackground { stroke: var(--border-color); stroke-width: 2px; }
 .blocklySelected > .blocklyPath { stroke: #FFD700; stroke-width: 4px; }
 
-/* === BLOCKLY TOOLBOX (Kid-Friendly) === */
-.blocklyToolboxDiv { padding: 8px !important; background-color: var(--bg-sidebar); }
-.blocklyTreeRow {
-    height: 48px !important;
-    line-height: 48px !important;
-    margin: 0 8px 6px !important;
-    border-radius: 12px !important;
+/* === BLOCKLY TOOLBOX (VIBRANT & MODERN) === */
+.blocklyToolboxDiv { 
+    padding: 12px 8px !important; 
+    background-color: var(--bg-sidebar); 
+}
+
+/* Use high specificity to guarantee override */
+body .ide-container .blocklyTreeRow {
+    height: 52px !important;
+    line-height: 52px !important;
+    margin: 0 0 8px !important;
+    border-radius: 14px !important;
     font-family: var(--ui-font) !important;
-    font-size: 16px !important;
+    font-size: 17px !important;
     font-weight: 700 !important;
-    border: 2px solid transparent !important;
-    position: relative !important;
-    padding: 0 20px !important;
-    color: var(--text-primary);
-    transition: all 0.2s ease;
+    border: none !important;
+    padding: 0 24px !important;
+    color: var(--text-secondary) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow: hidden !important;
+    background-color: transparent !important; 
 }
-.blocklyTreeRow:hover {
-    background-color: var(--bg-inset);
-    transform: translateX(5px);
+
+body .ide-container .blocklyTreeRow:hover {
+    background-color: var(--bg-inset) !important;
+    color: var(--text-primary) !important;
+    transform: translateX(4px);
 }
-.blocklyTreeRow::before {
-    content: '🚀'; /* Fun Emoji */
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%) scale(0);
-    transition: transform 0.2s ease;
-    font-size: 1.2em;
+
+body .ide-container .blocklyTreeRow.blocklyTreeSelected {
+    background-color: currentColor !important;
+    color: white !important;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px -2px color-mix(in srgb, currentColor 40%, transparent);
 }
-.blocklyTreeRow.blocklyTreeSelected {
-    background-color: color-mix(in srgb, currentColor 15%, transparent) !important;
-    border: 2px solid currentColor !important;
-    box-shadow: var(--shadow-sm);
+
+body .ide-container .blocklyTreeRow.blocklyTreeSelected .blocklyTreeLabel { 
+    color: white !important;
+    font-weight: 800 !important; 
 }
-.blocklyTreeRow.blocklyTreeSelected::before { transform: translateY(-50%) scale(1); }
-.blocklyTreeRow.blocklyTreeSelected .blocklyTreeLabel { color: currentColor !important; font-weight: 800 !important; }
-.blocklyTreeIcon { display: none !important; }
-.blocklyToolboxDiv .blocklyTreeSeparator {
+
+body .ide-container .blocklyTreeRow.blocklyTreeSelected::before {
+    content: none !important;
+}
+
+body .ide-container .blocklyTreeIcon { display: none !important; }
+
+body .ide-container .blocklyToolboxDiv .blocklyTreeSeparator {
     border-bottom: 2px dashed var(--border-color) !important;
-    margin: 12px !important;
+    margin: 16px 8px !important;
 }
 
 /* === CODE & CONSOLE VIEWS === */
 .view-wrapper {
-    position: absolute; top: 0; right: 0; bottom: 0;
-    visibility: hidden; opacity: 0;
-    transition: opacity .3s ease-in-out, transform .3s ease-in-out;
-    display: flex; flex-direction: column;
+    position: absolute; 
+    top: 0; 
+    left: 0;
+    right: 0; 
+    bottom: 0;
+    display: none; /* Hide by default */
+    flex-direction: column;
     z-index: 50;
-    transform: scale(0.98);
-    border-left: 2px solid var(--border-color);
+    background-color: var(--bg-code); /* Ensure it has a background */
 }
+
 .view-wrapper.active {
-    visibility: visible; opacity: 1; transform: scale(1);
+    display: flex; /* Show when active */
 }
 #code-view { background-color: var(--bg-code); }
 #console-view { background-color: var(--bg-console); }
@@ -453,7 +466,7 @@ body, html {
 .upload-status-icon.error svg { color: var(--accent-error); }
 
 /* === EXTENSION MODAL STYLES === */
-.extension-modal-content { min-width: 650px; max-width: 80vw; padding: 0; }
+.extension-modal-content { min-width: 950px; max-width: 1000px; padding: 0; }
 .modal-header {
     display: flex; justify-content: space-between; align-items: center;
     padding: 1.25rem 2rem; border-bottom: 2px solid var(--border-color);
@@ -468,12 +481,12 @@ body, html {
 
 .extension-list {
     padding: 2rem; display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 2rem; max-height: 70vh; overflow-y: auto;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.52rem; max-height: 70vh; overflow-y: auto;
 }
 .extension-card {
     border: 2px solid var(--border-color); border-radius: 16px;
-    padding: 2rem; text-align: center; cursor: pointer;
+    padding: 1.5rem; text-align: center; cursor: pointer;
     transition: all 0.2s ease; background-color: var(--bg-sidebar);
 }
 .extension-card:hover {
@@ -485,14 +498,14 @@ body, html {
     transform: none; box-shadow: none; background-color: var(--bg-inset);
 }
 .extension-card-icon {
-    width: 72px; height: 72px; margin: 0 auto 1.5rem;
+    width: 60px; height: 60px; margin: 0 auto 1.5rem;
     border-radius: 18px; display: flex; align-items: center;
     justify-content: center; color: white;
     box-shadow: var(--shadow-md);
 }
-.extension-card-icon svg { width: 36px; height: 36px; }
-.extension-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary); }
-.extension-card p { font-size: 1rem; color: var(--text-secondary); line-height: 1.6; }
+.extension-card-icon svg { width: 32px; height: 32px; }
+.extension-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary); }
+.extension-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
 
 /* --- CAMERA TOGGLE BUTTON --- */
 .camera-toggle-btn {
@@ -608,4 +621,34 @@ body, html {
     background-color: var(--bg-inset);
     border-color: var(--border-color);
     color: var(--text-secondary);
+}
+
+.extension-card.added {
+    opacity: 1; /* Make it fully visible */
+    cursor: default;
+    border-color: var(--accent-success); /* Use a green border to indicate it's active */
+    background-color: color-mix(in srgb, var(--accent-success) 10%, transparent);
+}
+
+.extension-card.added:hover {
+    transform: none; /* Disable the hover-grow effect */
+    box-shadow: none;
+    border-color: var(--accent-success);
+}
+
+.remove-ext-btn {
+    margin-top: 1rem;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+    background-color: var(--accent-error) !important;
+    color: white !important;
+    border: none !important;
+    cursor: pointer; /* Explicitly set cursor */
+    width: 100%;
+}
+
+.remove-ext-btn:hover {
+    opacity: 0.85;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-md) !important;
 }
