@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://unpkg.com; media-src 'self' https://unpkg.com; worker-src 'self' blob:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block IDE</title>
+    <link rel="stylesheet" href="src/renderer/styles/ide.css">
+    <link rel="icon" href="data:,">
+    <script src="src/renderer/theme-loader.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/blockly@10.4.0/blockly_compressed.js"></script>
+    <script src="https://unpkg.com/blockly@10.4.0/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly@10.4.0/python_compressed.js"></script>
+    <script src="https://unpkg.com/blockly@10.4.0/msg/en.js"></script>
+
+
+    <script src="src/renderer/blockly/basic-blocks.js"></script>
+    <script src="src/renderer/blockly/basic-generators.js"></script>
+    <script src="src/renderer/blockly/face-landmark-blocks.js"></script>
+    <script src="src/renderer/blockly/face-landmark-generators.js"></script>
+    <script src="src/renderer/blockly/hand-gesture-blocks.js"></script>
+    <script src="src/renderer/blockly/hand-gesture-generators.js"></script>
+    <script src="src/renderer/blockly/image-classification-blocks.js"></script>
+    <script src="src/renderer/blockly/image-classification-generators.js"></script> 
+    <script src="src/renderer/blockly/object-detection-blocks.js"></script>
+    <script src="src/renderer/blockly/object-detection-generators.js"></script>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const boardId = params.get('board') || 'esp32';
+      const board = ['esp32', 'pico'].includes(boardId) ? boardId : 'esp32';
+      
+      document.write(`<script src="src/renderer/blockly/${board}-blocks.js"><\/script>`);
+      document.write(`<script src="src/renderer/blockly/${board}-generators.js"><\/script>`);
+    </script>
+</head>
+<body>
+    <!-- The body of this file does not need any changes -->
+    <div class="ide-container">
+        <header class="main-header">
+            <div class="header-project-info">
+                <button id="back-to-projects-btn" class="btn icon-btn" title="Back to Projects">
+                    <svg viewBox="0 0 24 24"><path d="M19 12H5" /><path d="m12 19-7-7 7-7" /></svg>
+                </button>
+                <div id="project-title-wrapper" title="Click to rename">
+                    <h1 id="current-project-name">Project Name</h1>
+                    <span id="header-board-badge" class="board-badge">ESP32</span>
+                </div>
+                <button id="rename-project-btn" class="btn icon-btn" title="Rename Project">
+                    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button id="save-project" class="btn icon-btn" title="Save Project">
+                    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                </button>
+            </div>
+            <div class="header-view-toggle">
+                <div class="view-toggle-btn-group">
+                    <button id="blocks-view-btn" class="view-toggle-btn active">BLOCKS</button>
+                    <button id="code-view-btn" class="view-toggle-btn">CODE</button>
+                </div>
+                <button id="live-mode-btn" class="btn icon-btn" title="Toggle Live Mode (Execute blocks directly on device)">
+                   <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                </button>
+            </div>
+
+
+            <div class="header-actions">
+                <button id="dashboard-btn" class="btn" title="IoT Dashboard" style="display: none;">
+                    <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/><path d="M18 10h-1.26A8 8 0 1 0 4 16.25"/></svg>
+                    <span>Dashboard</span>
+                </button>
+                <button id="ai-monitor-btn" class="btn" title="AI Monitor">
+                    <svg viewBox="0 0 24 24"><path d="M12 12a3 3 0 100-6 3 3 0 000 6z"/><path d="M20.9 19.8A10 10 0 103.1 4.2"/></svg>
+                    <span>AI Monitor</span>
+                </button>
+                <button id="plotter-btn" class="btn" title="Live Data Plotter">
+                    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+                    <span>Plotter</span>
+                </button>
+                <button id="console-btn" class="btn" title="Console">
+                    <svg viewBox="0 0 24 24"><path d="M18 10L12 16L6 10" /></svg>
+                    <span>Console</span>
+                </button>
+            </div>
+        </header>
+        <aside class="left-sidebar">
+            <div class="sidebar-top">
+                <button id="toggle-cam-btn" class="btn icon-btn camera-toggle-btn" title="Toggle Camera">
+                    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.5 6.5 0 0 0 16 9.5A6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14z"/><path d="M2 8V4h4"/><path d="M22 8V4h-4"/><path d="M2 16v4h4"/><path d="M22 16v4h-4"/></svg>
+                </button>
+                <div id="board-viewer-container" class="board-viewer">
+                    <img id="board-image" src="" alt="Selected Microcontroller Board">
+                    <video id="sidebar-webcam" playsinline autoplay muted></video>
+                    <canvas id="sidebar-canvas-overlay"></canvas>
+                </div>
+            </div>
+            <div class="sidebar-bottom">
+                <div class="connection-container">
+                    <div class="connect-button-group">
+                        <button id="connect-device" class="btn">Connect</button>
+                        <div id="connection-status-wrapper" class="connection-disconnected">
+                            <span>Disconnected</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-grid">
+                    <button id="upload-code" class="btn primary" disabled>
+                        <svg viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" /><path d="M12 12v9" /><path d="m16 16-4-4-4 4" /></svg>
+                        <span>Upload to Device</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div id="blocklyArea"></div>
+
+        <div id="code-view" class="view-wrapper">
+            <div class="code-editor-container">
+                <div id="line-numbers-gutter" class="line-numbers-gutter"></div>
+                <div id="code-content-wrapper" class="code-content-wrapper">
+                    <pre id="code-display-pre" spellcheck="false"></pre>
+                </div>
+            </div>
+            <div class="code-actions">
+                <button id="edit-code-btn" class="btn icon-btn" title="Edit Code"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                <button id="copy-code-btn" class="btn icon-btn" title="Copy Code"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button>
+            </div>
+        </div>
+
+            <div id="console-view" class="view-wrapper"><div class="view-header"><h3>Console</h3><button id="clear-console-btn" class="btn icon-btn" title="Clear Console"><svg viewBox="0 0 24 24"><path d="M20 5H4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1zM4 11h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1zm2 7h12a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/></svg></button></div><div class="console-output" id="console-output"></div><div class="console-input-wrapper"><span>></span><input type="text" id="console-input" placeholder="Type command and press Enter..." autocomplete="off"></div></div>
+            <div id="plotter-view" class="view-wrapper">
+                <div class="view-header">
+                    <h3>Live Data Plotter</h3>
+                    <p class="plotter-tip">Use a `print("plot:VALUE")` block to send data here.</p>
+                </div>
+                <div class="plotter-canvas-container">
+                    <canvas id="plotter-canvas"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div id="upload-status-modal" class="modal-backdrop" style="display: none;"><div class="modal-content upload-status-content"><div id="upload-status-icon" class="upload-status-icon"></div><p id="upload-status-message">Uploading...</p></div></div>
+    <div id="extension-modal" class="modal-backdrop" style="display: none;"><div class="modal-content extension-modal-content"><div class="modal-header"><h2>Choose an Extension</h2><button id="extension-modal-close-btn" class="titlebar-btn">&times;</button></div><div id="extension-list" class="extension-list"></div></div></div>
+    <div id="ai-monitor-modal" class="modal-backdrop" style="display: none;"><div class="modal-content ai-monitor-content"><div class="modal-header" id="ai-monitor-header"><h2>AI Vision Monitor</h2><button id="ai-monitor-close-btn" class="titlebar-btn">&times;</button></div><div class="ai-monitor-controls"><button class="ai-monitor-toggle" data-model="face">Face Landmarks</button><button class="ai-monitor-toggle" data-model="hand">Hand Gesture</button><button class="ai-monitor-toggle" data-model="classification">Image Classify</button><button class="ai-monitor-toggle" data-model="detection">Object Detect</button><button class="ai-monitor-toggle" id="ai-data-rules-tab" data-model="rules">Data Rules</button></div><div class="ai-monitor-body"><div class="ai-monitor-video-container"><canvas id="ai-monitor-canvas"></canvas></div><div class="ai-monitor-data-container"><pre id="ai-monitor-data-output"><p class="ai-monitor-placeholder">Waiting for data...</p></pre></div></div></div></div>
+
+    <div id="block-genius-toast" class="block-genius-toast">
+    <div class="genius-header">
+        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01 9 11.01"/></svg>
+        <h3 id="genius-title">Block Genius</h3>
+        <button id="genius-close-btn">&times;</button>
+    </div>
+    <div class="genius-body">
+        <div class="genius-text">
+            <p id="genius-description">A helpful tip about this block.</p>
+        </div>
+        <div class="genius-diagram">
+            <img id="genius-image" src="" alt="Wiring Diagram">
+        </div>
+        </div>
+    </div>
+
+<!-- IoT Dashboard Builder Modal -->
+<div id="iot-dashboard-modal" class="modal-backdrop" style="display: none;">
+    <div class="iot-dashboard-content">
+        <!-- Main Header of the Modal -->
+        <div class="canvas-header">
+             <h2 class="canvas-title">IoT Dashboard Builder</h2>
+             <div class="view-toggle">
+                <button class="view-toggle-btn active" data-view="laptop">Desktop</button>
+                <button class="view-toggle-btn" data-view="mobile">Mobile</button>
+            </div>
+            <div class="canvas-actions">
+                <button id="dashboard-clear-btn" class="btn">Clear Canvas</button>
+                <button id="dashboard-export-btn" class="btn primary">Generate HTML & Blocks</button>
+                <button id="dashboard-close-btn" class="titlebar-btn">&times;</button>
+            </div>
+        </div>
+        <!-- 3-Column Body -->
+        <div class="iot-dashboard-body">
+            <!-- Column 1: Component Palette -->
+            <aside class="palette">
+                <div class="palette-section"><h3>Controls</h3><div class="component-list">
+                    <div class="component-item" data-type="button" draggable="true"><div class="component-icon">🔘</div><div class="component-name">Button</div></div>
+                    <div class="component-item" data-type="slider" draggable="true"><div class="component-icon">🎚️</div><div class="component-name">Slider</div></div>
+                    <div class="component-item" data-type="toggle" draggable="true"><div class="component-icon">🔛</div><div class="component-name">Toggle</div></div>
+                    <div class="component-item" data-type="color-picker" draggable="true"><div class="component-icon">🎨</div><div class="component-name">Color</div></div>
+                    <div class="component-item" data-type="joystick" draggable="true"><div class="component-icon">🕹️</div><div class="component-name">Joystick</div></div>
+                </div></div>
+                <div class="palette-section"><h3>Displays</h3><div class="component-list">
+                    <div class="component-item" data-type="gauge" draggable="true"><div class="component-icon">🌡️</div><div class="component-name">Gauge</div></div>
+                    <div class="component-item" data-type="line-chart" draggable="true"><div class="component-icon">📉</div><div class="component-name">Line Chart</div></div>
+                    <div class="component-item" data-type="led" draggable="true"><div class="component-icon">💡</div><div class="component-name">LED</div></div>
+                    <div class="component-item" data-type="label" draggable="true"><div class="component-icon">🔤</div><div class="component-name">Text</div></div>
+                    <div class="component-item" data-type="card" draggable="true"><div class="component-icon">🃏</div><div class="component-name">Card</div></div>
+                </div></div>
+                    <div class="palette-section"><h3>Layout & Text</h3><div class="component-list">
+                    <div class="component-item" data-type="container" draggable="true"><div class="component-icon">🖼️</div><div class="component-name">Container</div></div>
+                    <div class="component-item" data-type="heading" draggable="true"><div class="component-icon"><strong>H1</strong></div><div class="component-name">Heading</div></div>
+                    <div class="component-item" data-type="paragraph" draggable="true"><div class="component-icon">¶</div><div class="component-name">Paragraph</div></div>
+                    <div class="component-item" data-type="image" draggable="true"><div class="component-icon">🏞️</div><div class="component-name">Image</div></div>
+                </div></div>
+            </aside>
+            <!-- Column 2: The Canvas -->
+            <main class="canvas-container">
+                <div class="canvas" id="dashboard-canvas"></div>
+            </main>
+            <!-- Column 3: Properties Panel -->
+            <aside class="properties-panel">
+            <div class="properties-header">Properties</div>
+            <div id="properties-content">
+                <div id="no-selection-prompt"><div class="icon">👆</div><p>Select a component to edit.</p></div>
+        
+                <!-- General Properties -->
+                <div class="property-group" data-prop-group="general"><h4 class="prop-title">General</h4>
+                    <div class="property-item" data-prop="id"><label for="prop-id">Unique ID</label><input type="text" id="prop-id"></div>
+                </div>
+
+                <!-- Text Properties -->
+                <div class="property-group" data-prop-group="text"><h4 class="prop-title">Text</h4>
+                    <div class="property-item" data-prop="label"><label for="prop-label">Label / Text</label><textarea id="prop-label" rows="3"></textarea></div>
+                    <div class="property-item" data-prop="fontSize"><label for="prop-fontSize">Font Size (px)</label><input type="number" id="prop-fontSize"></div>
+                    <div class="property-item" data-prop="fontWeight"><label for="prop-fontWeight">Font Weight</label><select id="prop-fontWeight"><option value="400">Normal</option><option value="700">Bold</option></select></div>
+                    <div class="property-item" data-prop="textAlign"><label for="prop-textAlign">Alignment</label><select id="prop-textAlign"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></div>
+                </div>
+
+                <!-- Appearance Properties -->
+                <div class="property-group" data-prop-group="appearance"><h4 class="prop-title">Appearance</h4>
+                    <div class="property-item" data-prop="color"><label for="prop-color">Primary/Text Color</label><input type="color" id="prop-color" value="#007aff"></div>
+                    <div class="property-item" data-prop="bgColor"><label for="prop-bgColor">Background Color</label><input type="color" id="prop-bgColor" value="#ffffff"></div>
+                    <div class="property-item" data-prop="borderColor"><label for="prop-borderColor">Border Color</label><input type="color" id="prop-borderColor" value="#e5e7eb"></div>
+                    <div class="property-item" data-prop="borderRadius"><label for="prop-borderRadius">Corner Radius (px)</label><input type="number" id="prop-borderRadius"></div>
+                    <div class="property-item" data-prop="shape"><label for="prop-shape">Shape</label><select id="prop-shape"><option value="rectangle">Rectangle</option><option value="rounded">Rounded</option><option value="circle">Circle</option></select></div>
+                </div>
+
+                <!-- Layout Properties -->
+                <div class="property-group" data-prop-group="layout"><h4 class="prop-title">Layout</h4>
+                    <div class="property-item" data-prop="width"><label for="prop-width">Width (px)</label><input type="number" id="prop-width"></div>
+                    <div class="property-item" data-prop="height"><label for="prop-height">Height (px)</label><input type="number" id="prop-height"></div>
+                    <div class="property-item" data-prop="radius" style="display: none;"><label for="prop-radius">Radius (px)</label><input type="number" id="prop-radius"></div>
+                </div>
+
+                <!-- Data Properties -->
+                <div class="property-group" data-prop-group="data"><h4 class="prop-title">Data & Values</h4>
+                    <div class="property-item" data-prop="value"><label for="prop-value">Default Value</label><input type="text" id="prop-value"></div>
+                    <div class="property-item" data-prop="min"><label for="prop-min">Min Value</label><input type="number" id="prop-min"></div>
+                    <div class="property-item" data-prop="max"><label for="prop-max">Max Value</label><input type="number" id="prop-max"></div>
+                    <div class="property-item" data-prop="valueX" style="display: none;"><label for="prop-valueX">X Value</label><input type="number" id="prop-valueX" readonly></div>
+                    <div class="property-item" data-prop="valueY" style="display: none;"><label for="prop-valueY">Y Value</label><input type="number" id="prop-valueY" readonly></div>
+                    <div class="property-item" data-prop="src"><label for="prop-src">Image URL</label><input type="text" id="prop-src"></div>
+                    <div class="property-item" data-prop="colorOn"><label for="prop-colorOn">"ON" Color</label><input type="color" id="prop-colorOn" value="#34c759"></div>
+                    <div class="property-item" data-prop="colorOff"><label for="prop-colorOff">"OFF" Color</label><input type="color" id="prop-colorOff" value="#555555"></div>
+                </div>
+        
+                <!-- Actions -->
+                <div class="property-group" data-prop-group="actions">
+                    <button class="btn-delete" id="delete-component">Delete Component</button>
+                </div>
+            </div>
+        </aside>
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="export-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Export Dashboard</h2>
+            <button class="modal-close" id="modal-close-btn">&times;</button>
+        </div>
+        <div class="export-section">
+            <h3>MicroPython HTML String</h3>
+            <p class="plotter-tip">Copy this and paste it into a text block in your code.</p>
+            <textarea id="export-code-micropython" readonly></textarea>
+            <button id="copy-micropython-btn" class="copy-btn">Copy for MicroPython</button>
+        </div>
+    </div>
+</div>
+ 
+    <script src="src/renderer/blockly/blockly-init.js"></script>
+    <script src="src/renderer/utils/serial-comm.js"></script>
+    <script src="src/renderer/utils/webrepl.js"></script>
+    <script src="src/renderer/utils/modals.js"></script>
+    <script type="module" src="src/renderer/ide.js"></script>
+</body>
+</html>
