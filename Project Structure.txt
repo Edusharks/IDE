@@ -1,0 +1,77 @@
+Block IDE v1.0/
+├── .gitignore
+├── ide.html                     
+├── index.html                   
+├── package.json
+├── package-lock.json        
+├── tsconfig.json
+├── vite.config.ts               
+│
+├── public/                      
+│   ├── assets/
+│   │   ├── ESP32.png
+│   │   ├── Pico.png
+│   │   └── wiring/
+│   │       ├── dht11.svg
+│   │       ├── hcsr04.svg
+│   │       └── oled.svg
+│   │
+│   ├── media/                   
+│   └── pyright.worker.js       
+│
+└── src/
+    │
+    ├── ide/                  
+    │   ├── blockly/             
+    │   │   ├── basic-blocks.js
+    │   │   ├── basic-generators.js
+    │   │   ├── blockly-init.js
+    │   │   ├── esp32-blocks.js
+    │   │   ├── esp32-generators.js
+    │   │   ├── face-landmark-blocks.js
+    │   │   ├── face-landmark-generators.js
+    │   │   ├── hand-gesture-blocks.js
+    │   │   ├── hand-gesture-generators.js
+    │   │   ├── image-classification-blocks.js
+    │   │   ├── image-classification-generators.js
+    │   │   ├── object-detection-blocks.js
+    │   │   ├── object-detection-generators.js
+    │   │   ├── pico-blocks.js
+    │   │   └── pico-generators.js
+    │   │
+    │   ├── managers/           
+    │   │   ├── AiVisionManager.js # MediaPipe & Custom Models
+    │   │   ├── BlockGenius.js  # Smart tips & wiring help
+    │   │   ├── CommunicationManager.js # Unified Serial/BLE/WiFi wrapper
+    │   │   ├── DashboardBuilder.js # IoT Dashboard Logic
+    │   │   ├── SimulatorManager.js # Canvas Drawing & State Logic
+    │   │   ├── UIManager.js # DOM Elements & Event Binding
+    │   │   └── DeviceFileManager.js # File Upload/Download/List
+    │   │
+    │   ├── utils/               
+    │   │   ├── ble-comm.js
+    │   │   ├── serial-comm.js
+    │   │   ├── HardwareBridge.js # Links Python to JS Simulator
+    │   │   └── webrepl.js
+    │   │
+    │   ├── ide-entry.js         
+    │   ├── ide-tutorials.js   
+    │   ├── ide.css              
+    │   └── ide.js           
+    │
+    ├── landing/                
+    │   ├── landing-tutorials.js 
+    │   ├── landing.css          
+    │   └── landing.js           
+    │      
+    │
+    └── shared/               
+        ├── styles/
+        │   ├── theme.css        
+        │   └── components.css
+        │
+        ├── utils/
+        │   ├── db.js            
+        │   └── modals.js       
+        │
+        └── theme-loader.js      

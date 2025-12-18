@@ -1,0 +1,238 @@
+/* ==========================================================================
+   FILE: src/shared/styles/theme.css
+   DESCRIPTION: Unified variable definitions for Landing Page AND IDE.
+   This serves as the Single Source of Truth.
+   ========================================================================== */
+
+/* 1. GLOBAL FONTS */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+/* 2. DEFAULT THEME (Dark Mode) */
+:root {
+    /* --- 2a. Dynamic Controls (SettingsManager.js) --- */
+    --primary-color: #5A67D8; 
+    --font-size-base: 15px;
+    --spacing-unit: 1rem;
+    
+    /* --- 2b. Dimensions & Shape --- */
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-lg: 16px;     /* Used in Landing */
+    --radius-xl: 24px;
+    --radius-2xl: 28px;    /* Used in Components */
+    --header-height: 54px; /* Used in IDE */
+
+    /* --- 2c. Color Palette (Backgrounds) --- */
+    /* Main background: IDE uses 'main', Landing uses 'primary' */
+    --bg-main: #1A202C;       
+    --bg-primary: #1A202C;    
+    
+    /* Secondary/Sidebar: IDE uses 'sidebar', Landing uses 'secondary' */
+    --bg-sidebar: #2D3748;    
+    --bg-secondary: #2D3748;  
+
+    /* Tertiary/Inset: IDE uses 'inset', Landing uses 'tertiary' */
+    --bg-inset: #171923;      
+    --bg-tertiary: #171923;   
+    --bg-overlay: rgba(30, 33, 50, 0.85);
+
+    /* Specific IDE Areas */
+    --bg-header: #2D3748;
+    --bg-code: #171923;
+    --bg-console: #12141C;
+    --bg-toolbox: var(--bg-sidebar);
+    --bg-flyout: var(--bg-main);
+
+    /* --- 2d. Text & Borders --- */
+    --text-primary: #F7FAFC;
+    --text-secondary: #A0AEC0;
+    --text-tertiary: #718096;
+    --text-light: #F7FAFC;    /* Always Light */
+    --text-code: #E2E8F0;     /* IDE Specific */
+    --text-console: #CBD5E0;  /* IDE Specific */
+
+    /* Borders: IDE uses 'color', Landing uses 'light/medium' */
+    --border-color: #4A5568;
+    --border-light: #4A5568;
+    --border-medium: #718096;
+    --border-heavy: rgba(255, 255, 255, 0.2);
+
+    /* --- 2e. Accents & Status --- */
+    /* Primary Aliases */
+    --accent-primary: var(--primary-color);
+    --primary: var(--primary-color);          /* Alias for component.css */
+    --primary-dark: #4c51bf;                  /* For gradients */
+    
+    /* Glows & Hovers */
+    --accent-primary-hover: color-mix(in srgb, var(--primary-color) 80%, white);
+    --accent-glow: color-mix(in srgb, var(--primary-color) 20%, transparent);
+    --primary-glow: var(--accent-glow);       /* Alias for component.css */
+
+    /* Status Colors */
+    --secondary: #F687B3;      
+    --accent-warning: #F6AD55; 
+    --accent-success: #68D391; 
+    --success: #68D391;        /* Alias */
+    --accent-error: #FC8181;   
+    --error: #FC8181;          /* Alias */
+
+    /* --- 2f. Simulator Specifics --- */
+    --sim-bg-color: #1A202C;
+    --sim-grid-color: #2D3748;
+    --led-glow-color: rgba(255, 255, 255, 0.8);
+
+    /* --- 2g. UI Effects --- */
+    --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 5px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.6);
+    --shadow-xl: 0 35px 90px rgba(0, 0, 0, 0.6);
+    
+    --scrollbar-thumb: #718096;
+    --scrollbar-thumb-hover: #A0AEC0;
+    
+    --backdrop-blur: blur(20px);
+    --transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-fast: all 0.15s ease;
+    
+    /* --- 2h. Fonts --- */
+    --ui-font: 'Nunito', sans-serif;
+    --font-family: 'Nunito', sans-serif; /* Alias */
+    --code-font: 'Fira Code', monospace;
+}
+
+/* 3. LIGHT MODE OVERRIDES */
+body.light-mode {
+    /* Backgrounds */
+    --bg-main: #F0F4F8;
+    --bg-primary: #F0F4F8;
+    --bg-sidebar: #FFFFFF;
+    --bg-secondary: #FFFFFF;
+    --bg-inset: #E3E8EE;
+    --bg-tertiary: #E2E8F0;
+    --bg-header: #FFFFFF;
+    --bg-overlay: rgba(255, 255, 255, 0.85);
+
+    /* Text & Borders */
+    --border-color: #DDE4E9;
+    --border-light: #DDE4E9;
+    --border-medium: #CBD5E0;
+    --border-heavy: rgba(0, 0, 0, 0.1);
+
+    --text-primary: #2D3748;
+    --text-secondary: #718096;
+    --text-tertiary: #A0AEC0;
+    
+    /* Code Editor gets Dark Text */
+    --text-code: #2D3748; 
+
+    --bg-console: #131936;
+    --console-text: #E2E8F0;      /* Light Grey */
+    --console-input: #FFFFFF;     /* White for input */
+    --console-error: #FC8181;     /* Light Red */
+    --console-success: #68D391;   /* Light Green */
+    --console-info: #63B3ED;      /* Light Blue */
+    --console-cursor: #FFFFFF;    /* White Cursor */
+
+    --accent-primary-hover: color-mix(in srgb, var(--primary-color) 85%, black);
+    --primary-dark: #4338ca;
+    --accent-success: #48BB78;
+    --success: #48BB78;
+    --accent-error: #F56565;
+    --error: #F56565;
+    --sim-bg-color: #ffffff;
+    --sim-grid-color: #e5e7eb;
+    --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 5px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.15);
+    --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.15);
+    --scrollbar-thumb: #A0AEC0;
+    --scrollbar-thumb-hover: #718096;
+}
+
+
+/* 4. CONTRAST MODE OVERRIDES */
+body.contrast-mode {
+    /* Backgrounds - Pure Black */
+    --bg-main: #000000;
+    --bg-primary: #000000;
+    
+    --bg-sidebar: #000000;
+    --bg-secondary: #000000;
+    
+    --bg-inset: #121212;
+    --bg-tertiary: #111111;
+    
+    --bg-code: #000000;
+    --bg-console: #000000;
+    --bg-header: #000000;
+
+    /* Borders - Yellow */
+    --border-color: #FFFF00;
+    --border-light: #FFFF00;
+    --border-medium: #FFFFFF;
+    
+    /* Text - High Contrast */
+    --text-primary: #FFFFFF;
+    --text-secondary: #FFFF00;
+    --text-tertiary: #00FF00;
+    --text-code: #FFFFFF;
+    
+    /* Accents - Neon */
+    --primary-color: #FFFF00; /* Override dynamic color */
+    --accent-primary: #FFFF00;
+    --primary: #FFFF00;
+    --primary-dark: #FFFF00;
+    
+    --accent-primary-hover: #FFFFFF;
+    --accent-success: #00FF00;
+    --success: #00FF00;
+    --accent-error: #FF0000;
+    --error: #FF0000;
+
+    /* Simulator */
+    --sim-bg-color: #000000;
+    --sim-grid-color: #333333;
+
+    /* Flatten UI */
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
+    
+    --radius: 0px;
+    --radius-sm: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
+    --radius-2xl: 0px;
+}
+
+/* 5. DENSITY SETTINGS */
+body.density-compact { 
+    --spacing-unit: 0.8rem; 
+    --header-height: 48px;
+    --radius: 8px;
+    --radius-lg: 10px;
+    --radius-xl: 14px;
+}
+body.density-spacious { 
+    --spacing-unit: 1.3rem; 
+    --header-height: 64px;
+}
+
+/* 6. FONT SIZE SETTINGS */
+body.font-small  { --font-size-base: 13px; }
+body.font-large  { --font-size-base: 17px; }
+
+/* 7. ANIMATION ENGINE */
+body:not(.animations-enabled) * {
+    transition: none !important;
+    animation: none !important;
+}
+
+body.animations-enabled * {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Hard override: Disable layout resizing animations regardless of setting */
+body.resizing * { transition: none !important; }
+#layout-resizer { transition: none !important; }

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Board Pin Mapper Tool</title>
+    <style>
+        /* --- Basic Setup & Fonts --- */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+        
+        :root {
+            --bg-main: #F0F4F8;
+            --bg-panel: #FFFFFF;
+            --border-color: #DDE4E9;
+            --text-primary: #2D3748;
+            --text-secondary: #718096;
+            --accent-primary: #5A67D8;
+            --accent-error: #F56565;
+            --shadow-md: 0 5px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            padding: 2rem;
+        }
+
+        /* --- Layout --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        .image-container, .controls-container {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+        }
+
+        .image-container {
+            flex: 2;
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .controls-container {
+            flex: 1;
+            align-self: stretch;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- UI Elements --- */
+        .upload-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        #image-placeholder {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        #board-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        #pin-overlay {
+            position: absolute;
+            top: 1.5rem; /* Match padding */
+            left: 1.5rem; /* Match padding */
+            width: calc(100% - 3rem);
+            height: calc(100% - 3rem);
+            cursor: crosshair;
+        }
+        
+        .pin-marker {
+            fill: rgba(239, 68, 68, 0.5);
+            stroke: var(--accent-error);
+            stroke-width: 2px;
+        }
+        .pin-marker:hover {
+            fill: rgba(239, 68, 68, 0.8);
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+        }
+
+        #pin-list {
+            list-style: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 300px; /* Or adjust as needed */
+        }
+
+        .pin-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        .pin-list-item:nth-child(odd) {
+            background-color: var(--bg-main);
+        }
+
+        .remove-pin-btn {
+            background: none;
+            border: none;
+            color: var(--accent-error);
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+        
+        #json-output-container {
+            margin-top: 1.5rem;
+            position: relative;
+        }
+
+        #json-output {
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            white-space: pre;
+            overflow-x: auto;
+            font-family: monospace;
+            min-height: 150px;
+        }
+        
+        #copy-json-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 6px 12px;
+            font-size: 12px;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Board Pin Mapper Tool</h1>
+            <p>Upload a board image, click on the pins, and generate the JSON for your IDE.</p>
+        </header>
+
+        <div>
+            <label for="image-uploader" class="upload-btn">1. Upload Board Image</label>
+            <input type="file" id="image-uploader" accept="image/*" style="display: none;">
+            <input type="text" id="board-id-input" placeholder="Enter board ID (e.g., 'esp32')" style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+        </div>
+        
+        <div class="main-content">
+            <div class="image-container">
+                <p id="image-placeholder">Image will be displayed here. Please upload one.</p>
+                <img id="board-image" src="" alt="Board for pin mapping">
+                <svg id="pin-overlay"></svg>
+            </div>
+
+            <div class="controls-container">
+                <div>
+                    <h2>2. Mapped Pins</h2>
+                    <ul id="pin-list"></ul>
+                </div>
+
+                <div id="json-output-container">
+                    <h2>3. Generated JSON</h2>
+                    <button id="copy-json-btn">Copy</button>
+                    <pre><code id="json-output">{...}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- STATE ---
+            let mappedPins = [];
+            const MARKER_SIZE = 25; // Size of the clickable square
+
+            // --- DOM ELEMENTS ---
+            const uploader = document.getElementById('image-uploader');
+            const boardIdInput = document.getElementById('board-id-input');
+            const placeholder = document.getElementById('image-placeholder');
+            const boardImage = document.getElementById('board-image');
+            const pinOverlay = document.getElementById('pin-overlay');
+            const pinList = document.getElementById('pin-list');
+            const jsonOutput = document.getElementById('json-output');
+            const copyJsonBtn = document.getElementById('copy-json-btn');
+
+            // --- FUNCTIONS ---
+
+            // Renders all UI components based on the current state
+            const renderUI = () => {
+                renderMarkers();
+                renderPinList();
+                renderJsonOutput();
+            };
+
+            // Renders the red squares on the SVG overlay
+            const renderMarkers = () => {
+                pinOverlay.innerHTML = '';
+                mappedPins.forEach(pin => {
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('x', pin.x);
+                    rect.setAttribute('y', pin.y);
+                    rect.setAttribute('width', pin.width);
+                    rect.setAttribute('height', pin.height);
+                    rect.classList.add('pin-marker');
+                    rect.innerHTML = `<title>GPIO ${pin.pin}</title>`;
+                    pinOverlay.appendChild(rect);
+                });
+            };
+
+            // Renders the list of mapped pins on the right
+            const renderPinList = () => {
+                pinList.innerHTML = '';
+                if (mappedPins.length === 0) {
+                    pinList.innerHTML = '<li style="color: var(--text-secondary); text-align: center; padding: 1rem;">Click on the image to add pins.</li>';
+                    return;
+                }
+                mappedPins.forEach(pin => {
+                    const li = document.createElement('li');
+                    li.classList.add('pin-list-item');
+                    li.innerHTML = `
+                        <span><strong>Pin ${pin.pin}</strong> (x: ${pin.x}, y: ${pin.y})</span>
+                        <button class="remove-pin-btn" data-pin="${pin.pin}">&times;</button>
+                    `;
+                    pinList.appendChild(li);
+                });
+            };
+
+            // Generates and displays the final JSON output
+            const renderJsonOutput = () => {
+                const boardId = boardIdInput.value.trim() || 'my_board';
+                const outputObject = {
+                    [boardId]: {
+                        'all': mappedPins,
+                        'digital_input': [],
+                        'digital_output': [],
+                        'analog': [],
+                        'pwm': []
+                        // Add other pin types as needed
+                    }
+                };
+                jsonOutput.textContent = JSON.stringify(outputObject, null, 2);
+            };
+
+            // Converts a browser click event to SVG-local coordinates
+            const getSVGCoordinates = (event) => {
+                const pt = new DOMPoint(event.clientX, event.clientY);
+                const svgTransform = pinOverlay.getScreenCTM().inverse();
+                const svgPoint = pt.matrixTransform(svgTransform);
+                return { x: Math.round(svgPoint.x), y: Math.round(svgPoint.y) };
+            };
+
+            // --- EVENT LISTENERS ---
+
+            // Handle image upload
+            uploader.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    boardImage.src = e.target.result;
+                    placeholder.style.display = 'none';
+                    boardImage.style.display = 'block';
+
+                    boardImage.onload = () => {
+                        // Crucial step: Set the SVG viewBox to match the image dimensions
+                        pinOverlay.setAttribute('viewBox', `0 0 ${boardImage.naturalWidth} ${boardImage.naturalHeight}`);
+                        mappedPins = []; // Reset pins for new image
+                        renderUI();
+                    };
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            boardIdInput.addEventListener('input', renderJsonOutput);
+
+            // Handle clicking on the overlay to add a pin
+            pinOverlay.addEventListener('click', (event) => {
+                if (!boardImage.src) {
+                    alert('Please upload an image first!');
+                    return;
+                }
+                
+                const pinNumber = prompt('Enter the GPIO pin number for this location:');
+                if (!pinNumber || pinNumber.trim() === '') return; // User cancelled or entered nothing
+
+                if (mappedPins.some(p => p.pin === pinNumber.trim())) {
+                    alert(`Pin ${pinNumber} has already been mapped. Please remove it first if you want to reposition it.`);
+                    return;
+                }
+
+                const { x, y } = getSVGCoordinates(event);
+                
+                mappedPins.push({
+                    pin: pinNumber.trim(),
+                    x: x - Math.floor(MARKER_SIZE / 2),
+                    y: y - Math.floor(MARKER_SIZE / 2),
+                    width: MARKER_SIZE,
+                    height: MARKER_SIZE
+                });
+
+                // Sort pins numerically for cleaner output
+                mappedPins.sort((a, b) => parseInt(a.pin) - parseInt(b.pin));
+
+                renderUI();
+            });
+
+            // Handle removing a pin (using event delegation)
+            pinList.addEventListener('click', (event) => {
+                if (event.target.matches('.remove-pin-btn')) {
+                    const pinToRemove = event.target.dataset.pin;
+                    mappedPins = mappedPins.filter(p => p.pin !== pinToRemove);
+                    renderUI();
+                }
+            });
+            
+            // Handle copy button
+            copyJsonBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(jsonOutput.textContent).then(() => {
+                    copyJsonBtn.textContent = 'Copied!';
+                    setTimeout(() => { copyJsonBtn.textContent = 'Copy'; }, 2000);
+                }).catch(err => {
+                    alert('Failed to copy to clipboard.');
+                    console.error('Clipboard error:', err);
+                });
+            });
+
+            // Initial render on load
+            renderUI();
+        });
+    </script>
+
+</body>
+</html>

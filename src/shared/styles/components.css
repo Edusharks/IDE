@@ -1,0 +1,140 @@
+/*
+ * FILE: src/shared/styles/components.css
+ * DESCRIPTION: Contains styles for UI components shared across the entire application,
+ * such as modals, buttons, and tutorial popups.
+ */
+
+/* === PREMIUM BUTTON STYLES === */
+.btn { 
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 0.5rem; 
+    padding: 0.875rem 1.5rem; 
+    font-size: 0.85rem; 
+    font-weight: 600; 
+    border-radius: var(--radius-lg); 
+    border: 1.5px solid transparent; 
+    cursor: pointer; 
+    transition: var(--transition); 
+    text-decoration: none; 
+    font-family: var(--font-family);
+    letter-spacing: -0.01em;
+    position: relative;
+    overflow: hidden;
+}
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.6s ease;
+}
+.btn:hover::before {
+    left: 100%;
+}
+.btn:disabled { 
+    opacity: 0.5; 
+    cursor: not-allowed;
+    transform: none !important;
+}
+.btn.primary { 
+    background: var(--primary); 
+    color: var(--text-light); 
+    border: none;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn.primary:hover { 
+    background: var(--accent-primary-hover);
+    box-shadow: var(--shadow-md);
+}
+.btn.primary:hover { 
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    box-shadow: var(--shadow-md);
+}
+.btn.secondary { 
+    background: var(--bg-secondary); 
+    color: var(--text-primary); 
+    border-color: var(--border-medium);
+    box-shadow: var(--shadow-sm);
+}
+.btn.secondary:hover { 
+    background: var(--bg-tertiary); 
+    border-color: var(--border-heavy);
+}
+.btn.icon-btn { padding: 12px; }
+.btn.icon-btn svg { width: 20px; height: 20px; stroke-width: 2.5; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+
+/* === PREMIUM MODAL STYLES (FROM LANDING) === */
+.modal-backdrop { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    display: none; /* Changed from flex to none by default */
+    justify-content: center; align-items: center; z-index: 1000;
+    animation: fadeIn 0.4s cubic-bezier(0.23, 1, 0.32, 1); 
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-content { 
+    width: 520px; 
+    max-width: 90vw; 
+    background: var(--bg-secondary);
+    padding: 2rem; 
+    border-radius: var(--radius-2xl); 
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-light);
+    animation: slideUp 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+}
+@keyframes slideUp { from { transform: translateY(30px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+
+.modal-title { 
+    font-size: 1.5rem; 
+    font-weight: 800; 
+    margin-bottom: 2rem; 
+    text-align: center;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.form-group { margin-bottom: 1.75rem; }
+.form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary); letter-spacing: -0.01em; }
+.form-group input, .form-group select { color: var(--text-primary); width: 100%; padding: 1rem 1.25rem; border: 1.5px solid var(--border-light); border-radius: var(--radius-lg); font-size: 0.95rem; transition: var(--transition); font-family: var(--font-family); background: var(--bg-primary); font-weight: 500; box-shadow: var(--shadow-sm); }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow), var(--shadow-sm); background: var(--bg-secondary); transform: translateY(-1px); }
+.modal-buttons { margin-top: 2.5rem; display: flex; justify-content: flex-end; gap: 1rem; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 2px solid var(--border-color); position: relative; }
+.modal-header h2 { font-size: 1.5rem; font-weight: 800; margin: 0; }
+.titlebar-btn { font-size: 2rem; line-height: 1; padding-bottom: 4px; background: none; border: none; cursor: pointer; color: var(--text-secondary); transition: transform 0.2s ease; }
+.titlebar-btn:hover { transform: scale(1.2) rotate(90deg); color: var(--error); }
+
+
+/* === PREMIUM SHEPHERD TUTORIAL STYLES === */
+.shepherd-element {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-xl);
+    max-width: 440px;
+    border: 1.5px solid var(--border-light);
+    backdrop-filter: var(--backdrop-blur);
+    overflow: hidden;
+}
+.shepherd-arrow::before { background: var(--bg-secondary); border: 1.5px solid var(--border-light); }
+.shepherd-header { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); padding: 1.25rem 1.75rem; border-top-left-radius: var(--radius-2xl); border-top-right-radius: var(--radius-2xl); position: relative; }
+.shepherd-header::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); }
+.shepherd-title { color: var(--text-light); font-family: var(--font-family); font-weight: 800; font-size: 1.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2); letter-spacing: -0.01em; }
+.shepherd-cancel-icon { color: rgba(255,255,255,0.8); font-size: 1.5rem; font-weight: 300; transition: var(--transition-fast); }
+.shepherd-cancel-icon:hover { color: white; transform: scale(1.1); }
+.shepherd-text { color: var(--text-primary); font-family: var(--font-family); font-size: 0.9rem; line-height: 1.6; padding: 1.75rem; font-weight: 500; }
+.shepherd-footer { padding: 0 1.75rem 1.75rem; gap: 0.75rem; }
+.shepherd-button { font-family: var(--font-family); font-weight: 600; border-radius: var(--radius); padding: 0.75rem 1.5rem; font-size: 0.85rem; transition: var(--transition); letter-spacing: -0.01em; }
+.shepherd-button.shepherd-button-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1.5px solid var(--border-medium); }
+.shepherd-button.shepherd-button-secondary:hover { background: var(--bg-secondary); border-color: var(--border-heavy); transform: translateY(-1px); }
+.shepherd-button:not(.shepherd-button-secondary) { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--text-light); border: none; }
+.shepherd-button:not(.shepherd-button-secondary):hover { background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); transform: translateY(-1px); }
