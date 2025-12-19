@@ -1,0 +1,290 @@
+{
+  "my_board": {
+    "all": [
+      {
+        "pin": "GP0",
+        "x": 479,
+        "y": 107,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP1",
+        "x": 481,
+        "y": 138,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GND",
+        "x": 478,
+        "y": 171,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP2",
+        "x": 478,
+        "y": 200,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP3",
+        "x": 479,
+        "y": 232,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP4",
+        "x": 479,
+        "y": 262,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP5",
+        "x": 479,
+        "y": 294,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GND1",
+        "x": 479,
+        "y": 326,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP6",
+        "x": 479,
+        "y": 356,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP7",
+        "x": 479,
+        "y": 387,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP8",
+        "x": 478,
+        "y": 419,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP9",
+        "x": 479,
+        "y": 449,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GND2",
+        "x": 479,
+        "y": 481,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP10",
+        "x": 479,
+        "y": 511,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP11",
+        "x": 478,
+        "y": 542,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP12",
+        "x": 478,
+        "y": 574,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP13",
+        "x": 479,
+        "y": 604,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GND3",
+        "x": 479,
+        "y": 634,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP14",
+        "x": 479,
+        "y": 668,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP15",
+        "x": 479,
+        "y": 697,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP16",
+        "x": 697,
+        "y": 698,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP17",
+        "x": 697,
+        "y": 666,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GND4",
+        "x": 697,
+        "y": 636,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP18",
+        "x": 698,
+        "y": 606,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP19",
+        "x": 697,
+        "y": 574,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP20",
+        "x": 698,
+        "y": 545,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP21",
+        "x": 697,
+        "y": 513,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GND5",
+        "x": 697,
+        "y": 481,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP22",
+        "x": 697,
+        "y": 451,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "RUN",
+        "x": 697,
+        "y": 419,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP26",
+        "x": 697,
+        "y": 388,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GP27",
+        "x": 697,
+        "y": 358,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GND6",
+        "x": 697,
+        "y": 326,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "DP28",
+        "x": 697,
+        "y": 294,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "ADC_VREF",
+        "x": 697,
+        "y": 264,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "3V3(OUT)",
+        "x": 695,
+        "y": 232,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "3V3_EN",
+        "x": 697,
+        "y": 202,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "GND7",
+        "x": 697,
+        "y": 171,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "VSYS",
+        "x": 697,
+        "y": 139,
+        "width": 25,
+        "height": 25
+      },
+      {
+        "pin": "VBUS",
+        "x": 697,
+        "y": 109,
+        "width": 25,
+        "height": 25
+      }
+    ],
+    "digital_input": [],
+    "digital_output": [],
+    "analog": [],
+    "pwm": []
+  }
+}
