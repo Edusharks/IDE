@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Pin & LED Mapper (Compact JSON)</title>
+    <style>
+        :root {
+            --bg-dark: #1e1e1e;
+            --bg-panel: #252526;
+            --text-main: #d4d4d4;
+            --accent: #007acc;
+            --border: #3e3e42;
+            --pin-marker: rgba(255, 0, 0, 0.7);
+            --led-marker: rgba(0, 255, 0, 0.7);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #333333;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            height: 50px;
+            flex-shrink: 0;
+        }
+
+        h1 { margin: 0; font-size: 1.1rem; font-weight: 600; color: #fff; }
+
+        select, input, button {
+            padding: 6px 12px;
+            background: #3c3c3c;
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        button:hover { background: #444; }
+        button.primary { background: var(--accent); border-color: var(--accent); }
+        button.primary:hover { background: #0062a3; }
+        input[type="color"] { padding: 0; width: 30px; height: 28px; border: none; }
+
+        /* --- MAIN LAYOUT --- */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* --- CANVAS AREA --- */
+        .canvas-area {
+            flex: 1;
+            background-color: #111;
+            background-image: linear-gradient(#222 1px, transparent 1px), linear-gradient(90deg, #222 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+        }
+        .canvas-area:active { cursor: grabbing; }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 5px;
+            background: rgba(0,0,0,0.7);
+            padding: 5px;
+            border-radius: 4px;
+            z-index: 100;
+        }
+        .zoom-controls button { width: 30px; font-weight: bold; text-align: center; padding: 6px 0; }
+
+        #transform-layer {
+            transform-origin: 0 0;
+            position: absolute;
+            top: 0; left: 0;
+            transition: transform 0.1s cubic-bezier(0,0,0.2,1);
+        }
+
+        #board-image {
+            display: block;
+            pointer-events: none;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        /* --- MARKERS --- */
+        .marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        
+        .marker.type-pin {
+            width: 12px; height: 12px;
+            background-color: var(--pin-marker);
+            border-radius: 50%;
+            border-color: #ffdd00;
+        }
+
+        .marker.type-led {
+            width: 16px; height: 16px;
+            background-color: var(--led-marker);
+            border-radius: 3px;
+        }
+
+        .marker::after {
+            content: attr(data-label);
+            position: absolute;
+            top: -22px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            white-space: nowrap;
+            pointer-events: none;
+            border: 1px solid #555;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 360px;
+            background-color: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            z-index: 20;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background: #2d2d2d;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .tab.active {
+            background: var(--bg-panel);
+            border-top: 2px solid var(--accent);
+            color: white;
+        }
+
+        .tab-content {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .hidden { display: none !important; }
+
+        .panel-group { display: flex; flex-direction: column; gap: 8px; }
+        .label-row { font-size: 11px; font-weight: bold; color: #888; text-transform: uppercase; }
+        
+        .scroll-list {
+            flex: 1;
+            overflow-y: auto;
+            background: #1e1e1e;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .list-item {
+            padding: 8px 10px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .list-item:hover { background: #2a2d2e; }
+        .list-item.active { background: #094771; color: white; }
+        .list-item.mapped { color: #6a9955; }
+        .list-item.mapped::after { content: '✓'; font-weight: bold; }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: #1e1e1e;
+            color: #9cdcfe;
+            font-family: monospace;
+            border: 1px solid var(--border);
+            resize: none;
+            font-size: 11px;
+            box-sizing: border-box;
+            white-space: pre; /* Keeps formatting */
+            overflow-wrap: normal;
+            overflow-x: scroll;
+        }
+        
+        .color-picker-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #333;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Pin & LED Mapper</h1>
+    <select id="board-select">
+        <option value="esp32">ESP32 DevKit V1</option>
+        <option value="pico">Raspberry Pi Pico</option>
+        <option value="uno">Arduino Uno</option>
+    </select>
+    <input type="file" id="file-input" accept="image/*" style="display:none">
+    <button onclick="document.getElementById('file-input').click()">📂 Load Image</button>
+    <div style="flex:1"></div>
+    <button class="primary" onclick="generateJSON()">📋 Copy JSON</button>
+</header>
+
+<div class="main-container">
+    <!-- Left: Canvas -->
+    <div class="canvas-area" id="canvas-area">
+        <div id="transform-layer">
+            <img id="board-image" src="" alt="" draggable="false">
+        </div>
+        
+        <div class="zoom-controls">
+            <button onclick="zoomOut()">-</button>
+            <button onclick="resetView()" style="width:auto; padding: 6px 10px;">Fit</button>
+            <button onclick="zoomIn()">+</button>
+        </div>
+    </div>
+
+    <!-- Right: Sidebar -->
+    <div class="sidebar">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('pins')">Pins</div>
+            <div class="tab" onclick="switchTab('leds')">LEDs</div>
+        </div>
+
+        <!-- PIN MAPPING CONTENT -->
+        <div id="tab-pins" class="tab-content">
+            <div class="panel-group">
+                <div class="label-row">Current Pin to Map</div>
+                <div style="display:flex; gap:5px;">
+                    <h3 id="curr-pin-name" style="margin:0; color:var(--accent); flex:1; align-self:center;">-</h3>
+                    <select id="curr-pin-type" style="width:90px;">
+                        <option value="digital">Digital</option>
+                        <option value="power">Power</option>
+                        <option value="gnd">GND</option>
+                        <option value="analog">Analog</option>
+                        <option value="pwm">PWM</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:5px; margin-top:5px;">
+                    <button onclick="skipItem()" style="flex:1">Skip</button>
+                    <button onclick="undoItem()" style="flex:1">Undo</button>
+                </div>
+            </div>
+
+            <div class="label-row">Pin Queue</div>
+            <div id="pin-list" class="scroll-list"></div>
+        </div>
+
+        <!-- LED MAPPING CONTENT -->
+        <div id="tab-leds" class="tab-content hidden">
+            <div class="panel-group">
+                <div class="label-row">Current LED to Map</div>
+                <h3 id="curr-led-name" style="margin:0; color:var(--led-marker);">-</h3>
+                
+                <div class="color-picker-row">
+                    <span style="font-size:12px;">Color:</span>
+                    <input type="color" id="led-color" value="#ff0000">
+                    <span id="led-color-hex" style="font-size:11px; font-family:monospace;">#ff0000</span>
+                </div>
+
+                <div style="display:flex; gap:5px; margin-top:5px;">
+                    <button onclick="skipItem()" style="flex:1">Skip</button>
+                    <button onclick="undoItem()" style="flex:1">Undo</button>
+                </div>
+            </div>
+
+            <div class="label-row">LED Queue</div>
+            <div id="led-list" class="scroll-list"></div>
+        </div>
+
+        <!-- OUTPUT -->
+        <div style="padding: 15px; border-top:1px solid var(--border);">
+            <div class="label-row" style="margin-bottom:5px;">JSON Output</div>
+            <textarea id="json-output" readonly></textarea>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- CONFIGURATION ---
+    const PRESETS = {
+        'esp32': {
+            pins: [
+                "3V3", "GND", "D15", "D2", "D4", "RX2", "TX2", "D5", "D18", "D19", "D21", "RX0", "TX0", "D22", "D23",
+                "EN", "VP", "VN", "D34", "D35", "D32", "D33", "D25", "D26", "D27", "D14", "D12", "D13", "GND", "VIN"
+            ],
+            leds: [
+                { id: "pwr", name: "Power LED", color: "#ff0000" },
+                { id: "builtin", name: "Built-in (D2)", color: "#0000ff" }
+            ]
+        },
+        'pico': {
+            pins: [
+                "GP0", "GP1", "GND", "GP2", "GP3", "GP4", "GP5", "GND", "GP6", "GP7", "GP8", "GP9", "GND", "GP10", "GP11", "GP12", "GP13", "GND", "GP14", "GP15",
+                "GP16", "GP17", "GND", "GP18", "GP19", "GP20", "GP21", "GND", "GP22", "RUN", "GP26", "GP27", "GND", "GP28", "ADC_VREF", "3V3", "3V3_EN", "GND", "VSYS", "VBUS"
+            ],
+            leds: [
+                { id: "pwr", name: "Power LED", color: "#00ff00" },
+                { id: "builtin", name: "Built-in (GP25)", color: "#00ff00" }
+            ]
+        },
+        'uno': {
+            pins: [
+                "RESET", "3V3", "5V", "GND", "GND", "VIN", "A0", "A1", "A2", "A3", "A4", "A5",
+                "D0_RX", "D1_TX", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12", "D13", "GND", "AREF", "SDA", "SCL"
+            ],
+            leds: [
+                { id: "on", name: "ON LED", color: "#00ff00" },
+                { id: "l", name: "L (D13)", color: "#ffae00" },
+                { id: "tx", name: "TX LED", color: "#ffae00" },
+                { id: "rx", name: "RX LED", color: "#ffae00" }
+            ]
+        }
+    };
+
+    // --- STATE ---
+    let currentMode = 'pins'; 
+    let pinData = []; 
+    let ledData = []; 
+    let pinIndex = 0;
+    let ledIndex = 0;
+    let scale = 1;
+    let panX = 0;
+    let panY = 0;
+    let isDragging = false;
+    let dragStartX = 0, dragStartY = 0;
+
+    // --- DOM ---
+    const canvasArea = document.getElementById('canvas-area');
+    const transformLayer = document.getElementById('transform-layer');
+    const boardImage = document.getElementById('board-image');
+    const boardSelect = document.getElementById('board-select');
+    const tabPins = document.getElementById('tab-pins');
+    const tabLeds = document.getElementById('tab-leds');
+    const pinListEl = document.getElementById('pin-list');
+    const ledListEl = document.getElementById('led-list');
+    const ledColorInput = document.getElementById('led-color');
+
+    // --- INIT ---
+    boardSelect.addEventListener('change', loadPreset);
+    document.getElementById('file-input').addEventListener('change', handleImageUpload);
+    canvasArea.addEventListener('wheel', handleWheel, { passive: false });
+    canvasArea.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    ledColorInput.addEventListener('input', (e) => {
+        document.getElementById('led-color-hex').textContent = e.target.value;
+        if(ledData[ledIndex]) ledData[ledIndex].color = e.target.value;
+    });
+
+    loadPreset();
+
+    function loadPreset() {
+        const type = boardSelect.value;
+        const preset = PRESETS[type];
+        pinData = preset.pins.map(name => ({ name: name, type: guessPinType(name), mappedPos: null }));
+        ledData = preset.leds.map(l => ({ ...l, mappedPos: null }));
+        pinIndex = 0;
+        ledIndex = 0;
+        document.querySelectorAll('.marker').forEach(m => m.remove());
+        renderLists();
+        updateUI();
+    }
+
+    function guessPinType(name) {
+        const n = name.toUpperCase();
+        if (n.includes('GND')) return 'gnd';
+        if (n.includes('3V3') || n.includes('5V') || n.includes('VIN') || n.includes('VBUS')) return 'power';
+        if (n.startsWith('A') || n.includes('ADC')) return 'analog';
+        return 'digital';
+    }
+
+    function switchTab(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        if (mode === 'pins') {
+            document.querySelector('.tab:nth-child(1)').classList.add('active');
+            tabPins.classList.remove('hidden');
+            tabLeds.classList.add('hidden');
+        } else {
+            document.querySelector('.tab:nth-child(2)').classList.add('active');
+            tabPins.classList.add('hidden');
+            tabLeds.classList.remove('hidden');
+        }
+    }
+
+    function renderLists() {
+        pinListEl.innerHTML = '';
+        pinData.forEach((p, i) => {
+            const el = document.createElement('div');
+            el.className = `list-item ${i === pinIndex ? 'active' : ''} ${p.mappedPos ? 'mapped' : ''}`;
+            el.innerHTML = `<span>${p.name}</span><span style="opacity:0.7">${p.type}</span>`;
+            el.onclick = () => { pinIndex = i; updateUI(); renderLists(); };
+            pinListEl.appendChild(el);
+        });
+        const activePin = pinListEl.querySelector('.active');
+        if(activePin) activePin.scrollIntoView({block: "center", behavior: "smooth"});
+
+        ledListEl.innerHTML = '';
+        ledData.forEach((l, i) => {
+            const el = document.createElement('div');
+            el.className = `list-item ${i === ledIndex ? 'active' : ''} ${l.mappedPos ? 'mapped' : ''}`;
+            el.innerHTML = `<span>${l.name}</span><div style="width:12px;height:12px;background:${l.color};border-radius:2px;"></div>`;
+            el.onclick = () => { ledIndex = i; updateUI(); renderLists(); };
+            ledListEl.appendChild(el);
+        });
+    }
+
+    function updateUI() {
+        if (pinIndex < pinData.length) {
+            const p = pinData[pinIndex];
+            document.getElementById('curr-pin-name').textContent = p.name;
+            document.getElementById('curr-pin-type').value = p.type;
+        } else {
+            document.getElementById('curr-pin-name').textContent = "All Pins Mapped";
+        }
+
+        if (ledIndex < ledData.length) {
+            const l = ledData[ledIndex];
+            document.getElementById('curr-led-name').textContent = l.name;
+            document.getElementById('led-color').value = l.color;
+            document.getElementById('led-color-hex').textContent = l.color;
+        } else {
+            document.getElementById('curr-led-name').textContent = "All LEDs Mapped";
+        }
+        generateJSONOutput();
+    }
+
+    function handleImageUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            boardImage.src = evt.target.result;
+            boardImage.onload = () => resetView();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function handleWheel(e) {
+        e.preventDefault();
+        const zoomFactor = 0.1;
+        const delta = e.deltaY > 0 ? -zoomFactor : zoomFactor;
+        const newScale = Math.max(0.2, Math.min(5, scale + delta));
+        const rect = canvasArea.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        panX -= (mouseX - panX) * (newScale / scale - 1);
+        panY -= (mouseY - panY) * (newScale / scale - 1);
+        scale = newScale;
+        applyTransform();
+    }
+
+    function handleMouseDown(e) {
+        if (e.button === 1 || e.shiftKey) {
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            canvasArea.style.cursor = 'grabbing';
+            e.preventDefault();
+            return;
+        }
+        if (e.button === 0) {
+            const imgRect = boardImage.getBoundingClientRect();
+            if (e.clientX < imgRect.left || e.clientX > imgRect.right || 
+                e.clientY < imgRect.top || e.clientY > imgRect.bottom) return;
+
+            const x = ((e.clientX - imgRect.left) / imgRect.width * 100).toFixed(2);
+            const y = ((e.clientY - imgRect.top) / imgRect.height * 100).toFixed(2);
+            
+            mapCurrentItem(x, y);
+        }
+    }
+
+    function handleMouseMove(e) {
+        if (isDragging) {
+            panX += e.clientX - dragStartX;
+            panY += e.clientY - dragStartY;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            applyTransform();
+        }
+    }
+
+    function handleMouseUp() {
+        isDragging = false;
+        canvasArea.style.cursor = 'grab';
+    }
+
+    function applyTransform() {
+        transformLayer.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+    }
+
+    function resetView() {
+        const containerW = canvasArea.offsetWidth;
+        const containerH = canvasArea.offsetHeight;
+        const imgW = boardImage.naturalWidth || 500;
+        const imgH = boardImage.naturalHeight || 500;
+        const scaleW = (containerW - 40) / imgW;
+        const scaleH = (containerH - 40) / imgH;
+        scale = Math.min(scaleW, scaleH, 1);
+        panX = (containerW - imgW * scale) / 2;
+        panY = (containerH - imgH * scale) / 2;
+        applyTransform();
+    }
+
+    function zoomIn() { scale *= 1.2; applyTransform(); }
+    function zoomOut() { scale /= 1.2; applyTransform(); }
+
+    function mapCurrentItem(x, y) {
+        if (currentMode === 'pins') {
+            if (pinIndex >= pinData.length) return;
+            removeMarker(`pin-${pinIndex}`);
+            const p = pinData[pinIndex];
+            p.type = document.getElementById('curr-pin-type').value;
+            p.mappedPos = { x, y };
+            createMarker(x, y, p.name, 'pin', `pin-${pinIndex}`);
+            pinIndex++;
+            renderLists();
+            updateUI();
+        } else {
+            if (ledIndex >= ledData.length) return;
+            removeMarker(`led-${ledIndex}`);
+            const l = ledData[ledIndex];
+            l.mappedPos = { x, y };
+            createMarker(x, y, l.name, 'led', `led-${ledIndex}`, l.color);
+            ledIndex++;
+            renderLists();
+            updateUI();
+        }
+    }
+
+    function createMarker(x, y, label, type, id, color=null) {
+        const m = document.createElement('div');
+        m.className = `marker type-${type}`;
+        m.style.left = `${x}%`;
+        m.style.top = `${y}%`;
+        m.setAttribute('data-label', label);
+        m.id = id;
+        if(color && type === 'led') m.style.backgroundColor = color;
+        transformLayer.appendChild(m);
+    }
+
+    function removeMarker(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
+
+    function skipItem() {
+        if (currentMode === 'pins') { if (pinIndex < pinData.length) pinIndex++; } 
+        else { if (ledIndex < ledData.length) ledIndex++; }
+        renderLists();
+        updateUI();
+    }
+
+    function undoItem() {
+        if (currentMode === 'pins') {
+            if (pinIndex > 0) {
+                pinIndex--;
+                pinData[pinIndex].mappedPos = null;
+                removeMarker(`pin-${pinIndex}`);
+            }
+        } else {
+            if (ledIndex > 0) {
+                ledIndex--;
+                ledData[ledIndex].mappedPos = null;
+                removeMarker(`led-${ledIndex}`);
+            }
+        }
+        renderLists();
+        updateUI();
+    }
+
+    function generateJSONOutput() {
+        const validPins = pinData.filter(p => p.mappedPos).map(p => ({
+            id: p.name, 
+            name: p.name,
+            type: p.type,
+            pos: { x: parseFloat(p.mappedPos.x), y: parseFloat(p.mappedPos.y) }
+        }));
+
+        const validLeds = ledData.filter(l => l.mappedPos).map(l => ({
+            id: l.id,
+            name: l.name,
+            color: l.color,
+            pos: { x: parseFloat(l.mappedPos.x), y: parseFloat(l.mappedPos.y) }
+        }));
+
+        // --- NEW FORMATTING LOGIC ---
+        const formatArray = (arr) => {
+            if (arr.length === 0) return "[]";
+            const lines = arr.map(item => JSON.stringify(item));
+            return "[\n    " + lines.join(",\n    ") + "\n  ]";
+        };
+
+        let jsonStr = `{\n`;
+        jsonStr += `  "id": "${boardSelect.value}",\n`;
+        jsonStr += `  "name": "${boardSelect.options[boardSelect.selectedIndex].text}",\n`;
+        jsonStr += `  "image": "assets/boards/YOUR_IMAGE.png",\n`;
+        jsonStr += `  "isBoard": true,\n`;
+        jsonStr += `  "pins": ${formatArray(validPins)},\n`;
+        jsonStr += `  "leds": ${formatArray(validLeds)}\n`;
+        jsonStr += `}`;
+
+        document.getElementById('json-output').value = jsonStr;
+    }
+
+    function generateJSON() {
+        generateJSONOutput();
+        const el = document.getElementById('json-output');
+        el.select();
+        document.execCommand('copy');
+        alert('JSON copied to clipboard!');
+    }
+</script>
+
+</body>
+</html>

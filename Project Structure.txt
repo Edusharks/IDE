@@ -1,0 +1,108 @@
+Block IDE v2.1/
+├── .gitignore
+├── dashboard.html               
+├── ide.html                     
+├── index.html                   
+├── package.json
+├── package-lock.json
+├── tsconfig.json
+├── vite.config.ts               
+│
+├── public/                      
+│   ├── assets/
+│   │   ├── ESP32.png
+│   │   ├── Pico.png
+│   │   ├── Edusharks_logo.png
+│   │   ├── components/          
+│   │   │   ├── battery.png
+│   │   │   ├── buzzer.png
+│   │   │   ├── dht11.png
+│   │   │   ├── led_pcb.png
+│   │   │   ├── potentiometer.png
+│   │   │   ├── pushbutton.png
+│   │   │   ├── servo_motor.png
+│   │   │   ├── slide_switch.png
+│   │   │   └── ultrasonic.png
+│   │   ├── wiring/              
+│   │   │   ├── dht11.svg
+│   │   │   ├── hcsr04.svg
+│   │   │   └── oled.svg
+│   │   └── boards/              
+│   │       ├── esp32.svg
+│   │       └── pico w.svg
+│   │
+│   ├── media/
+│   └── pyright.worker.js
+│
+└── src/
+    ├── ide/
+    │   ├── blockly/             
+    │   │   ├── actuators_blocks.js
+    │   │   ├── actuators_generators.js
+    │   │   ├── basic-blocks.js
+    │   │   ├── basic-generators.js
+    │   │   ├── blockly-init.js
+    │   │   ├── bluetooth_blocks.js
+    │   │   ├── bluetooth_generators.js
+    │   │   ├── communication_blocks.js
+    │   │   ├── communication_generators.js
+    │   │   ├── custom-model-blocks.js
+    │   │   ├── custom-model-generators.js
+    │   │   ├── esp32-blocks.js
+    │   │   ├── esp32-generators.js
+    │   │   ├── face-landmark-blocks.js
+    │   │   ├── face-landmark-generators.js
+    │   │   ├── hand-gesture-blocks.js
+    │   │   ├── hand-gesture-generators.js
+    │   │   ├── image-classification-blocks.js
+    │   │   ├── image-classification-generators.js
+    │   │   ├── neopixel_blocks.js
+    │   │   ├── neopixel_generators.js
+    │   │   ├── object-detection-blocks.js
+    │   │   ├── object-detection-generators.js
+    │   │   ├── oled_blocks.js
+    │   │   ├── oled_generators.js
+    │   │   ├── pico-blocks.js
+    │   │   ├── pico-generators.js
+    │   │   ├── sensors_blocks.js
+    │   │   ├── sensors_generators.js
+    │   │   ├── wifi_blocks.js
+    │   │   └── wifi_generators.js
+    │   │
+    │   ├── data/              
+    │   │   ├── boards.json
+    │   │   └── components.json
+    │   │
+    │   ├── managers/            
+    │   │   ├── AiVisionManager.js
+    │   │   ├── BlockGenius.js
+    │   │   ├── CommunicationManager.js
+    │   │   ├── DashboardBuilder.js
+    │   │   ├── DeviceFileManager.js
+    │   │   ├── OrphanManager.js
+    │   │   ├── SimulatorManager.js
+    │   │   ├── ToastManager.js
+    │   │   ├── UIManager.js
+    │   │   └── VoltageRailManager.js
+    │   │
+    │   ├── utils/               
+    │   │   ├── ble-comm.js
+    │   │   ├── HardwareBridge.js
+    │   │   ├── micropython-definitions.js
+    │   │   ├── serial-comm.js
+    │   │   └── webrepl.js
+    │   │
+    │   ├── ide-entry.js        
+    │   ├── ide-tutorials.js
+    │   ├── ide.css              
+    │   └── ide.js               
+    │
+    └── shared/                  
+        ├── SettingsManager.js
+        ├── styles/
+        │   ├── components.css
+        │   └── theme.css
+        └── utils/
+            ├── assets.js
+            ├── db.js
+            └── modals.js

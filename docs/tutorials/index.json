@@ -1,0 +1,30 @@
+[
+  {
+    "id": "DIY Wheelie-Bot",
+    "filename": "DIY Wheelie-Bot.json",
+    "title": "DIY Wheelie-Bot",
+    "description": "Create you DIY Wheelie-Bot using Cardboard",
+    "level": "Intermediate",
+    "icon": "fa-robot",
+    "color": "tag-blue"
+  },
+  {
+    "id": "tut_blink",
+    "filename": "blink.json",
+    "title": "Blink an LED",
+    "description": "Learn the basics of GPIO outputs.",
+    "level": "Beginner",
+    "icon": "fa-lightbulb",
+    "color": "tag-green"
+  },
+  {
+    "id": "test",
+    "filename": "test.json",
+    "title": "test",
+    "description": "Pushbutton.",
+    "level": "Intermediate",
+    "icon": "fa-robot",
+    "color": "tag-blue"
+  }
+]
+     
