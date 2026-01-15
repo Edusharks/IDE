@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block IDE | Dashboard</title>
+    <link rel="icon" href="data:,">
+
+    <!-- OWNERSHIP METADATA -->
+    <meta name="author" content="Guhan S">
+    <meta name="copyright" content="Edusharks Learning and Research Pvt Ltd">
+    <meta name="owner" content="Edusharks Learning and Research Pvt Ltd">
+    <meta name="application-name" content="Block IDE">
+    
+    <!-- Hidden Comment in Source -->
+    <!-- 
+        Application: Block IDE
+        Property of: Edusharks Learning and Research Pvt Ltd
+        Lead Developer: Guhan S
+    -->
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Shepherd Tour CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/css/shepherd.css" />
+    
+
+    <style>
+        /* =========================================
+           1. VARIABLES
+           ========================================= */
+        :root {
+            /* Brand Colors */
+            --primary: #4f46e5;
+            --primary-light: #e0e7ff;
+            --secondary: #0ea5e9;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+
+            /* Backgrounds */
+            --bg-body: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-glass: rgba(255, 255, 255, 0.85);
+            --border-color: #e2e8f0;
+
+            /* Typography */
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --font-main: 'Inter', sans-serif;
+
+            /* Dimensions */
+            --radius-md: 12px;
+            --nav-height: 75px;
+
+            /* Shadows & Transitions */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Dark Mode */
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-surface: #1e293b;
+            --bg-glass: rgba(30, 41, 59, 0.9);
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* =========================================
+           2. HEADER & LOGO
+           ========================================= */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--nav-height);
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Layout Container */
+        .layout-container {
+            width: 95%;
+            max-width: 2400px;
+            margin: 0 auto;
+        }
+
+        .header-content {
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Logo */
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo i {
+            background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.2rem;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-main);
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .btn-icon:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* =========================================
+           3. SETTINGS MODAL STYLES
+           ========================================= */
+        
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .settings-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .color-picker-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 2rem;
+        }
+
+        .color-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            border: none;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .color-dot.active {
+            transform: scale(1.15);
+        }
+
+        .color-dot.active::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            border: 2px solid var(--text-main);
+            opacity: 0.3;
+        }
+
+        .theme-toggle-container {
+            background: var(--bg-body);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            position: relative;
+        }
+
+        .theme-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .theme-btn:hover {
+            color: var(--text-main);
+        }
+
+        .theme-btn.active {
+            background: var(--bg-surface);
+            color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            font-weight: 700;
+        }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .close-btn:hover {
+            background-color: #fee2e2;
+            color: #ef4444;
+            transform: rotate(90deg);
+        }
+
+        .close-btn i {
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: 34px;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-muted);
+            border-radius: 50%;
+            transition: .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        input:checked+.slider {
+            background-color: var(--primary);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(22px);
+            background-color: white;
+        }
+
+        /* =========================================
+           4. MAIN CONTENT
+           ========================================= */
+        .main-content {
+            padding: 20px 0;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-surface);
+            padding: 20px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .toolbar h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .toolbar p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .search-group {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+            justify-content: flex-end;
+            max-width: 600px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+        }
+
+        .select-input {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding: 10px 40px 10px 16px;
+            height: 42px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .select-input:hover {
+            border-color: var(--text-muted);
+            background-color: var(--bg-surface);
+        }
+
+        /* =========================================
+           5. GRID SYSTEM
+           ========================================= */
+        .section-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin: 2rem 0 1.5rem 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+            opacity: 0.6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.8rem;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.8rem;
+            position: relative;
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 240px;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: auto;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: var(--bg-body);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            transition: var(--transition);
+        }
+
+        .card:hover .card-icon {
+            background: var(--primary);
+            color: white;
+            transform: rotate(-5deg) scale(0.8);
+        }
+
+        .card-menu-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+
+        .card:hover .card-menu-btn {
+            opacity: 1;
+        }
+
+        .card-menu-btn:hover {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: scale(1.1);
+        }
+
+        .card-content h3 {
+            margin: 0 0 6px 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .card-content p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-meta {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        .card.create-new {
+            background: rgba(255, 255, 255, 0.6);
+            border: 2px dashed var(--border-color);
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .card.create-new:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .create-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: inline-block;
+            letter-spacing: 0.05em;
+        }
+
+        .tag-blue { background: #e0f2fe; color: #0284c7; }
+        .tag-purple { background: #f3e8ff; color: #9333ea; }
+
+        /* =========================================
+           6. MODALS & OVERLAYS
+           ========================================= */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--bg-surface);
+            width: 500px;
+            max-width: 90%;
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-backdrop.active .modal-box {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .board-option {
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            background: var(--bg-body);
+        }
+
+        .board-option:hover {
+            border-color: var(--text-muted);
+            transform: translateY(-2px);
+        }
+
+        .board-option.selected {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.04);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+
+        .board-option img {
+            height: 50px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .board-option h4 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .context-menu {
+            position: fixed;
+            background: var(--bg-surface);
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 3000;
+            display: none;
+            min-width: 180px;
+        }
+
+        .ctx-item {
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .ctx-item:hover {
+            background: var(--bg-body);
+            color: var(--primary);
+        }
+
+        .ctx-item.danger:hover {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .drag-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--primary);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.95;
+            color: white;
+            text-align: center;
+        }
+
+        @media (max-width: 992px) {
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+            .search-group {
+                max-width: 100%;
+            }
+        }
+
+        /* =========================================
+           7. BACKGROUND ANIMATION
+           ========================================= */
+        .tech-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, var(--bg-surface), var(--bg-body));
+        }
+
+        .tech-item {
+            position: absolute;
+            bottom: -10%;
+            color: var(--text-muted);
+            opacity: 0.05; /* Very subtle */
+            position: absolute;
+            animation: techFloat linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Specific colors for specific types (Optional: makes it pop slightly) */
+        .tech-item.type-chip { color: var(--primary); }
+        .tech-item.type-ai { color: var(--secondary); }
+        .tech-item.type-iot { color: var(--accent); }
+
+        @keyframes techFloat {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.08; /* Fade in */
+            }
+            90% {
+                opacity: 0.08; /* Stay visible */
+            }
+            100% {
+                transform: translateY(-120vh) rotate(360deg); /* Move way up */
+                opacity: 0;
+            }
+        }
+    </style>
+  <script type="module" crossorigin src="./assets/dashboard-BuSw_6th.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/ide-tutorials-BlmyY8dx.js">
+</head>
+
+<body>
+    
+    <!-- New Canvas Animation Container -->
+    <div id="tech-bg" class="tech-bg"></div>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="layout-container header-content">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-cube animate-float"></i> BlockIDE
+            </a>
+            <div style="display: flex; gap: 12px;">
+
+                <a href="builder.html" class="btn btn-primary" style="background: var(--accent); border-color: var(--accent);">
+                    <i class="fa-solid fa-graduation-cap"></i> Tutorial Builder
+                </a>
+
+                <button id="import-project-btn" class="btn btn-primary">
+                    <i class="fa-solid fa-file-import"></i> Import Project
+                </button>
+                <button id="open-settings-btn" class="btn btn-icon">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+            <input type="file" id="import-file-input" style="display: none;" accept=".json,.zip">
+        </div>
+    </header>
+
+    <!-- Main -->
+    <div class="layout-container main-content">
+        <div class="toolbar">
+            <div>
+                <h1>Dashboard</h1>
+                <p>Manage your projects and hardware.</p>
+            </div>
+            <div class="search-group">
+                <input type="text" id="search-projects" class="search-input" placeholder="Search projects...">
+                <select id="sort-projects" class="select-input">
+                    <option value="modified-desc">Recent</option>
+                    <option value="name-asc">Name (A-Z)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="section-label"><i class="fa-solid fa-folder"></i> My Projects</div>
+        <div class="grid" id="projects-grid">
+            <div class="card create-new" id="create-new-project-btn">
+                <div class="create-circle"><i class="fa-solid fa-plus"></i></div>
+                <h3 style="color: var(--primary);">Start a New Project</h3>
+            </div>
+        </div>
+
+        <!--  Project Tutorials Section -->
+        <div class="section-label"><i class="fa-solid fa-book-open"></i> Project Tutorials</div>
+        <div class="grid" id="project-tutorials-grid">
+            <!-- Items will be injected here via JS -->
+            <div class="card" style="display:flex; align-items:center; justify-content:center; color:var(--text-muted);">
+                <i class="fa-solid fa-spinner fa-spin"></i> &nbsp; Loading content...
+            </div>
+        </div>
+
+        <!-- Examples Grid -->
+        <div class="section-label"><i class="fa-solid fa-lightbulb"></i> Examples</div>
+        <div class="grid" id="examples-grid"></div>
+
+        <!-- Tutorials Grid -->
+        <div class="section-label"><i class="fa-solid fa-graduation-cap"></i> IDE Tutorials</div>
+        <div class="grid" id="tutorials-grid"></div>
+    </div>
+
+    <!-- Modal: Create Project -->
+    <div id="new-project-modal" class="modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 style="margin:0; font-size:1.5rem;">Create Project</h2>
+                <button class="close-btn" id="modal-cancel-btn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Project Name</label>
+                <input type="text" id="modal-project-name" class="search-input" placeholder="e.g. Smart Home" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Select Hardware</label>
+                <div class="board-grid"></div>
+            </div>
+            <div style="display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary" id="modal-create-btn" disabled>Create Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Settings -->
+    <div id="settings-modal" class="modal-backdrop">
+        <div class="modal-box">
+
+            <!-- Header -->
+            <div class="settings-header">
+                <h2>Appearance</h2>
+                <button class="close-btn" id="close-settings-btn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Section 1: Accent Color -->
+            <div class="form-group">
+                <span class="settings-label">Accent Color</span>
+                <div class="color-picker-row">
+                    <div class="color-dot" data-color="#4f46e5" style="background: #574ef8;"></div>
+                    <div class="color-dot" data-color="#0ea5e9" style="background: #0ea5e9;"></div>
+                    <div class="color-dot" data-color="#f59e0b" style="background: #f59e0b;"></div>
+                    <div class="color-dot" data-color="#22c55e" style="background: #22c55e;"></div>
+                    <div class="color-dot" data-color="#e53e3e" style="background: #e53e3e;"></div>
+                    <div class="color-dot" data-color="#a855f7" style="background: #a855f7;"></div>
+                    <div class="color-dot" data-color="#f97316" style="background: #f97316;"></div>
+                    <div class="color-dot" data-color="#ec4899" style="background: #ec4899;"></div>
+                </div>
+            </div>
+
+            <!-- Section 2: Theme Mode -->
+            <div class="form-group">
+                <span class="settings-label">Interface Theme</span>
+                <div class="theme-toggle-container">
+                    <button class="theme-btn active" id="theme-btn-light" onclick="setTheme('light')">
+                        <i class="fa-solid fa-sun"></i> Light
+                    </button>
+                    <button class="theme-btn" id="theme-btn-dark" onclick="setTheme('dark')">
+                        <i class="fa-solid fa-moon"></i> Dark
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section 3: Animations -->
+            <div class="form-group">
+                <span class="settings-label">Background Animation</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="animation-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Prompt Modal (Rename) -->
+    <div id="custom-prompt-modal" class="modal-backdrop">
+        <div class="modal-box" style="width: 400px;">
+            <h3 style="margin-top:0; font-size: 1.2rem;">Rename Project</h3>
+            <p id="custom-prompt-message" style="margin-bottom: 1rem; color: var(--text-muted);"></p>
+            <input type="text" id="custom-prompt-input" class="search-input" style="width: 100%; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="custom-prompt-cancel" class="btn btn-ghost">Cancel</button>
+                <button id="custom-prompt-ok" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal (Delete) -->
+    <div id="custom-confirm-modal" class="modal-backdrop">
+        <div class="modal-box" style="width: 400px;">
+            <h3 style="margin-top:0; font-size: 1.2rem;">Confirm Action</h3>
+            <p id="custom-confirm-message" style="margin-bottom: 1.5rem; color: var(--text-muted);"></p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="custom-confirm-no" class="btn btn-ghost">Cancel</button>
+                <button id="custom-confirm-yes" class="btn btn-primary" style="background: var(--danger);">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="project-context-menu" class="context-menu">
+        <div class="ctx-item" id="ctx-rename"><i class="fa-solid fa-pen"></i> Rename</div>
+        <div class="ctx-item" id="ctx-duplicate"><i class="fa-solid fa-copy"></i> Duplicate</div>
+        <div class="ctx-item danger" id="ctx-delete"><i class="fa-solid fa-trash"></i> Delete</div>
+    </div>
+
+    <!-- Drag Overlay -->
+    <div id="drag-drop-overlay" class="drag-overlay">
+        <div>
+            <i class="fa-solid fa-cloud-upload-alt" style="font-size: 5rem; margin-bottom: 20px;"></i>
+            <h2>Drop project file to Import</h2>
+        </div>
+    </div>
+
+</body>
+</html>

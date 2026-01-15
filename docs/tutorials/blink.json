@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "id": "tut-sample-001",
+    "title": "Blink an LED",
+    "author": "Edusharks",
+    "difficulty": "Beginner"
+  },
+  "steps": [
+    {
+      "id": "step_1",
+      "title": "Introduction",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Hello World of Hardware"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this tutorial, we will make the on-board LED blink. This is like the 'Hello World' of electronics."
+        },
+        {
+          "type": "image",
+          "src": "tutorials/images/red_led.png",
+          "caption": "A standard Red LED"
+        }
+      ]
+    },
+    {
+      "id": "step_2",
+      "title": "The Logic",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Understanding the Loop"
+        },
+        {
+          "type": "paragraph",
+          "text": "We need to turn the pin ON, wait for a second, turn it OFF, and wait again."
+        },
+        {
+          "type": "code",
+          "text": "digital_write(2, 1)\nsleep(1)\ndigital_write(2, 0)\nsleep(1)"
+        },
+        {
+          "type": "quiz",
+          "question": "What happens if we remove the sleep blocks?",
+          "options": [
+            "The LED will stay ON",
+            "The LED will blink too fast to see",
+            "The LED will explode"
+          ],
+          "correctIndex": 1,
+          "successMessage": "Correct! It will switch thousands of times per second.",
+          "failMessage": "Incorrect. Without delay, the switching is instant."
+        }
+      ]
+    },
+    {
+      "id": "step_3",
+      "title": "Your Turn",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Build the Blocks"
+        },
+        {
+          "type": "info",
+          "variant": "tip",
+          "text": "Find the 'Digital Write' block in the GPIO category."
+        }
+      ],
+      "validation": {
+        "type": "block_exists",
+        "blockType": "gpio_digital_write"
+      }
+    }
+  ]
+}

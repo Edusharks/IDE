@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockCurriculum Builder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* =========================================
+           1. THEME VARIABLES
+           ========================================= */
+        :root {
+            --bg-main: #1A202C;
+            --bg-header: #2D3748;
+            --bg-sidebar: #2D3748;
+            --bg-inset: #171923;
+            --border-color: #4A5568;
+            --text-primary: #000000; /* Changed to black */
+            --text-secondary: #A0AEC0;
+            --accent-primary: #5A67D8;
+            --accent-danger: #FC8181;
+            --radius: 6px;
+            --header-height: 60px;
+        }
+
+        body.light-mode {
+            --bg-main: #F0F4F8;
+            --bg-header: #FFFFFF;
+            --bg-sidebar: #FFFFFF;
+            --bg-inset: #E2E8F0;
+            --border-color: #CBD5E0;
+            --text-primary: #000000; /* Always black */
+            --text-secondary: #718096;
+        }
+
+        * { box-sizing: border-box; outline: none; }
+        
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+        /* =========================================
+           2. HEADER
+           ========================================= */
+        .app-header {
+            height: var(--header-height);
+            background-color: var(--bg-header);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            flex-shrink: 0;
+            z-index: 10;
+            gap: 20px;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .header-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; margin: 0; }
+
+        .header-props {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+            justify-content: center;
+            max-width: 700px;
+        }
+        
+        .prop-input {
+            background: var(--bg-inset);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 10px;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            height: 34px;
+        }
+        .prop-input:focus { border-color: var(--accent-primary); }
+
+        .header-right { display: flex; gap: 10px; flex-shrink: 0; }
+
+        /* UI Buttons */
+        .btn { padding: 6px 14px; border-radius: var(--radius); font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; height: 34px; }
+        .btn-primary { background: var(--accent-primary); color: white; border: none; }
+        .btn-primary:hover { filter: brightness(1.1); }
+        .btn-secondary { background: var(--bg-inset); color: var(--text-secondary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+        
+        .btn-icon { width: 34px; height: 34px; border-radius: 50%; background: transparent; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); }
+        .btn-icon:hover { color: var(--accent-primary); border-color: var(--accent-primary); background: var(--bg-inset); }
+
+        .btn-mini { width: 24px; height: 24px; padding: 0; border-radius: 4px; background: transparent; color: var(--text-secondary); border:none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .btn-mini:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+
+        /* =========================================
+           3. MAIN LAYOUT
+           ========================================= */
+        .builder-container {
+            display: grid;
+            grid-template-columns: 260px 1fr 280px;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar Base */
+        .sidebar {
+            background: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .sidebar-left { border-right: 1px solid var(--border-color); }
+        .sidebar-right { border-left: 1px solid var(--border-color); }
+
+        .sidebar-header { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid var(--border-color); 
+            display: flex; justify-content: space-between; align-items: center; 
+            flex-shrink: 0;
+            background: var(--bg-header);
+        }
+        
+        h3 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; margin: 0; }
+
+        /* =========================================
+           4. LEFT SIDEBAR (Steps)
+           ========================================= */
+        .step-list { 
+            flex-grow: 1; 
+            overflow-y: auto; 
+            padding: 10px; 
+        }
+
+        .step-item {
+            background: var(--bg-inset);
+            border: 1px solid transparent;
+            border-radius: var(--radius);
+            padding: 6px 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.15s;
+        }
+        .step-item:hover { border-color: var(--border-color); }
+        .step-item.active { border-color: var(--accent-primary); background: rgba(90, 103, 216, 0.08); }
+        
+        .step-num {
+            background: var(--bg-sidebar);
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: bold;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+        }
+        .step-item.active .step-num { background: var(--accent-primary); color: white; border-color: var(--accent-primary); }
+
+        .step-name-input {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            width: 100%;
+            padding: 4px;
+            border-radius: 4px;
+            font-family: inherit;
+            cursor: text;
+        }
+        .step-name-input:hover { background: var(--bg-main); }
+        .step-name-input:focus { background: var(--bg-main); border-color: var(--accent-primary); }
+        .step-actions { display: none; gap: 2px; }
+        .step-item:hover .step-actions { display: flex; }
+
+        /* =========================================
+           5. CENTER CANVAS
+           ========================================= */
+        .canvas-area {
+            background: var(--bg-main);
+            padding: 30px;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .device-mockup {
+            width: 460px;
+            height: 600px;
+            min-width: 320px; min-height: 400px;
+            resize: both; overflow: hidden;
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            display: flex; flex-direction: column;
+        }
+
+        .mockup-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-sidebar);
+            flex-shrink: 0;
+        }
+        .mockup-title-display { font-size: 1.1rem; font-weight: 700; margin: 0; color: var(--accent-primary); }
+
+        .mockup-body {
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex; flex-direction: column; gap: 12px;
+            background: var(--bg-sidebar);
+        }
+
+        .preview-block {
+            position: relative;
+            padding: 10px;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius);
+            background: var(--bg-main);
+        }
+        .preview-block.selected { border-color: var(--accent-primary); border-style: solid; background: rgba(90, 103, 216, 0.05); }
+        .preview-block:hover { border-color: var(--accent-primary); }
+        .block-actions {
+            position: absolute; top: -12px; right: 8px; display: none;
+            background: var(--bg-sidebar); border: 1px solid var(--border-color);
+            border-radius: 4px; padding: 2px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .preview-block:hover .block-actions, .preview-block.selected .block-actions { display: flex; gap: 2px; }
+        
+        .block-input { width: 100%; background: var(--bg-inset); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px; border-radius: 4px; font-size: 0.9rem; }
+        .block-input:focus { border-color: var(--accent-primary); }
+        
+        /* =========================================
+           6. RIGHT SIDEBAR (Scroll Fix & Compact)
+           ========================================= */
+        
+        .sidebar-right {
+            background: var(--bg-sidebar);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .sidebar-header, .properties-header {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-header);
+            flex-shrink: 0;
+        }
+        
+        .tools-content, .properties-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            height: 0; 
+        }
+
+        /* Tool Grid */
+        .toolbox-grid {
+            display: grid;
+            padding-top: 15px;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* Compact Tool Card */
+        .tool-card {
+            background: var(--bg-inset);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.1s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 65px; /* Fixed height for consistency */
+        }
+        .tool-card:hover { border-color: var(--accent-primary); background: rgba(90, 103, 216, 0.05); }
+        .tool-icon { font-size: 1.1rem; margin-bottom: 4px; color: var(--accent-primary); }
+        .tool-name { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
+
+        /* Properties Panel Overlay */
+        .properties-panel {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            background: var(--bg-sidebar);
+        }
+        .properties-panel.active { display: flex; }
+        
+        /* Property Inputs */
+        .property-group {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: var(--bg-inset);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+        }
+        
+        .property-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .property-control {
+            width: 100%;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+        .property-control:focus { border-color: var(--accent-primary); }
+        
+        .color-picker {
+            width: 100%; height: 36px;
+            border: 1px solid var(--border-color); border-radius: var(--radius);
+            cursor: pointer; padding: 2px; background: var(--bg-inset);
+        }
+        
+        .radio-group, .checkbox-group { display: flex; gap: 15px; margin-bottom: 10px; }
+        .radio-option, .checkbox-option { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; }
+
+        /* Meta Section (Validation etc.) */
+        .meta-section {
+            background: var(--bg-inset);
+            padding: 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+        .meta-section label { display: block; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 4px; font-weight: 700; text-transform: uppercase; }
+        .meta-section p { font-size: 0.75rem; color: var(--text-secondary); margin: 5px 0 0 0; line-height: 1.4; }
+
+        hr { border: 0; border-top: 1px solid var(--border-color); margin: 15px 0; }
+
+        /* Helper Styles */
+        .img-preview { max-width: 100%; border-radius: 4px; margin-top: 10px; border: 1px solid var(--border-color); display:block; }
+        .quiz-option { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; }
+        
+        .component-preview {
+            margin-top: 10px; padding: 10px;
+            background: var(--bg-main); border-radius: var(--radius);
+            border: 1px solid var(--border-color); font-size: 0.9rem;
+        }
+
+        .upload-btn {
+            display: flex; align-items: center; gap: 8px; justify-content: center;
+            background: var(--bg-inset); border: 1px solid var(--border-color); color: var(--text-primary);
+            padding: 8px; border-radius: var(--radius); cursor: pointer;
+            font-size: 0.85rem; font-weight: 600; margin-top: 8px;
+            width: 100%; transition: 0.2s;
+        }
+        .upload-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. HEADER -->
+    <header class="app-header">
+        <div class="header-left">
+            <a href="dashboard.html" class="btn-icon" title="Back to Dashboard">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1 class="header-title">Builder</h1>
+        </div>
+        
+        <div class="header-props">
+            <input type="text" id="meta-title" class="prop-input" placeholder="Tutorial Title" style="flex: 2; font-weight: bold;">
+            <input type="text" id="meta-author" class="prop-input" placeholder="Author" style="flex: 1;">
+            <select id="meta-difficulty" class="prop-input" style="flex: 1;">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+            </select>
+        </div>
+        
+        <div class="header-right">
+            <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">
+                <i class="fa-solid fa-upload"></i> Import
+            </button>
+            <input type="file" id="import-file" accept=".json" style="display:none" onchange="builder.importJSON(this)">
+            
+            <button class="btn btn-primary" onclick="builder.exportJSON()">
+                <i class="fa-solid fa-download"></i> Export
+            </button>
+        </div>
+    </header>
+
+    <!-- 2. MAIN LAYOUT -->
+    <div class="builder-container">
+        
+        <!-- LEFT: STEPS -->
+        <aside class="sidebar sidebar-left">
+            <div class="sidebar-header">
+                <h3>Steps</h3>
+                <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; height: 28px;" onclick="builder.addStep()">
+                    <i class="fa-solid fa-plus"></i> Add
+                </button>
+            </div>
+            <div id="step-list" class="step-list">
+                <!-- Steps injected here -->
+            </div>
+        </aside>
+
+        <!-- CENTER: CANVAS -->
+        <main class="canvas-area">
+            <div class="device-mockup">
+                <div class="mockup-header">
+                    <h2 id="step-title-display" class="mockup-title-display">Step Title</h2>
+                </div>
+                <div id="preview-container" class="mockup-body">
+                    <!-- Blocks injected here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- RIGHT: TOOLBOX & PROPERTIES -->
+        <aside class="sidebar sidebar-right">
+            <!-- Default Tools View -->
+            <div id="tools-view" class="tools-content">
+                <div class="sidebar-header">
+                    <h3>Components</h3>
+                </div>
+                
+                <div class="toolbox-grid">
+                    <div class="tool-card" onclick="builder.addComponent('heading')">
+                        <span class="tool-icon"><i class="fa-solid fa-heading"></i></span>
+                        <span class="tool-name">Heading</span>
+                    </div>
+                    <div class="tool-card" onclick="builder.addComponent('paragraph')">
+                        <span class="tool-icon"><i class="fa-solid fa-paragraph"></i></span>
+                        <span class="tool-name">Text</span>
+                    </div>
+                    <div class="tool-card" onclick="builder.addComponent('image')">
+                        <span class="tool-icon"><i class="fa-regular fa-image"></i></span>
+                        <span class="tool-name">Image</span>
+                    </div>
+                    <div class="tool-card" onclick="builder.addComponent('code')">
+                        <span class="tool-icon"><i class="fa-solid fa-code"></i></span>
+                        <span class="tool-name">Code</span>
+                    </div>
+                    <div class="tool-card" onclick="builder.addComponent('video')">
+                        <span class="tool-icon"><i class="fa-solid fa-video"></i></span>
+                        <span class="tool-name">Video</span>
+                    </div>
+                    <div class="tool-card" onclick="builder.addComponent('quiz')">
+                        <span class="tool-icon"><i class="fa-solid fa-circle-question"></i></span>
+                        <span class="tool-name">Quiz</span>
+                    </div>
+                    <div class="tool-card" onclick="builder.addComponent('info')">
+                        <span class="tool-icon"><i class="fa-solid fa-circle-info"></i></span>
+                        <span class="tool-name">Info</span>
+                    </div>
+                    <div class="tool-card" onclick="builder.addComponent('exercise')">
+                        <span class="tool-icon"><i class="fa-solid fa-dumbbell"></i></span>
+                        <span class="tool-name">Exercise</span>
+                    </div>
+                    <div class="tool-card" onclick="builder.addComponent('hint')">
+                        <span class="tool-icon"><i class="fa-solid fa-lightbulb"></i></span>
+                        <span class="tool-name">Hint</span>
+                    </div>
+                    <div class="tool-card" onclick="builder.addComponent('challenge')">
+                        <span class="tool-icon"><i class="fa-solid fa-trophy"></i></span>
+                        <span class="tool-name">Challenge</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-header" style="border-top: 1px solid var(--border-color); margin: 0 -15px 15px -15px; padding: 10px 15px; background: transparent;">
+                    <h3>Step Validation</h3>
+                </div>
+
+                <div class="meta-section">
+                    <label>Require Block Type (ID)</label>
+                    <input type="text" class="prop-input" id="validation-block" placeholder="e.g. gpio_digital_write" style="width:100%;">
+                    <p>User must place this block in the workspace to complete this step.</p>
+                </div>
+            </div>
+
+            <!-- Properties Panel (Hidden by default) -->
+            <div id="properties-panel" class="properties-panel">
+                <div class="properties-header">
+                    <h3 id="properties-title">Component Properties</h3>
+                    <button class="btn-mini" onclick="builder.closeProperties()">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                <div id="properties-content" class="properties-content">
+                    <!-- Properties injected here -->
+                </div>
+                <!-- Save button removed as requested -->
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        /**
+         * GLOBAL THEME INIT
+         */
+        (function initTheme() {
+            const theme = localStorage.getItem('app_setting_theme') || 'light';
+            const color = localStorage.getItem('app_setting_color') || '#5A67D8';
+            if (theme === 'light') document.body.classList.add('light-mode');
+            document.documentElement.style.setProperty('--accent-primary', color);
+        })();
+
+        /**
+         * BUILDER APPLICATION LOGIC
+         */
+        class TutorialBuilder {
+            constructor() {
+                this.data = {
+                    meta: { id: 'tut-' + Date.now(), title: 'New Tutorial', author: '', difficulty: 'Beginner' },
+                    steps: []
+                };
+                this.currentStepIndex = -1;
+                this.selectedBlockIndex = -1;
+                this.selectedBlockType = null;
+
+                this.ui = {
+                    stepList: document.getElementById('step-list'),
+                    preview: document.getElementById('preview-container'),
+                    titleDisplay: document.getElementById('step-title-display'),
+                    validationInput: document.getElementById('validation-block'),
+                    toolsView: document.getElementById('tools-view'),
+                    propertiesPanel: document.getElementById('properties-panel'),
+                    propertiesContent: document.getElementById('properties-content'),
+                    propertiesTitle: document.getElementById('properties-title')
+                };
+
+                this.bindGlobalEvents();
+                this.addStep();
+            }
+
+            bindGlobalEvents() {
+                document.getElementById('meta-title').addEventListener('input', (e) => this.data.meta.title = e.target.value);
+                document.getElementById('meta-author').addEventListener('input', (e) => this.data.meta.author = e.target.value);
+                document.getElementById('meta-difficulty').addEventListener('change', (e) => this.data.meta.difficulty = e.target.value);
+                
+                this.ui.validationInput.addEventListener('input', (e) => {
+                    if (this.currentStepIndex === -1) return;
+                    const val = e.target.value.trim();
+                    this.data.steps[this.currentStepIndex].validation = val ? { type: 'block_exists', blockType: val } : null;
+                });
+
+                document.addEventListener('mousedown', (e) => {
+                    const panel = this.ui.propertiesPanel;
+                    const isActive = panel.classList.contains('active');
+                    
+                    // If panel is not active, do nothing
+                    if (!isActive) return;
+
+                    // Check if click is inside the properties panel
+                    if (e.target.closest('#properties-panel')) return;
+
+                    // Check if click is on a preview block (which opens the panel)
+                    if (e.target.closest('.preview-block')) return;
+
+                    // Check if click is on the "Add Component" tools (optional, but prevents flickering)
+                    if (e.target.closest('.tool-card')) return;
+
+                    // If none of the above, close the panel
+                    this.closeProperties();
+                });
+            }
+
+            // --- STEP MANAGEMENT ---
+            
+            getNextStepNumber() {
+                const existingNumbers = this.data.steps.map(step => {
+                    const match = step.title.match(/^Step (\d+)/);
+                    return match ? parseInt(match[1]) : null;
+                }).filter(num => num !== null).sort((a, b) => a - b);
+                
+                // Find the first missing number starting from 1
+                for (let i = 1; i <= existingNumbers.length + 1; i++) {
+                    if (!existingNumbers.includes(i)) {
+                        return i;
+                    }
+                }
+                return existingNumbers.length + 1;
+            }
+            
+            addStep() {
+                const nextNumber = this.getNextStepNumber();
+                const newStep = {
+                    id: 'step_' + Date.now(),
+                    title: `Step ${nextNumber}`,
+                    content: [],
+                    validation: null
+                };
+                this.data.steps.push(newStep);
+                this.selectStep(this.data.steps.length - 1);
+            }
+
+            selectStep(index) {
+                this.currentStepIndex = index;
+                this.selectedBlockIndex = -1;
+                this.closeProperties();
+                this.renderStepList();
+                this.renderCanvas();
+                
+                const step = this.data.steps[index];
+                this.ui.titleDisplay.textContent = step.title;
+                this.ui.validationInput.value = step.validation ? step.validation.blockType : '';
+            }
+
+            deleteStep(index, e) {
+                e.stopPropagation();
+                if (this.data.steps.length <= 1) return;
+                
+                this.data.steps.splice(index, 1);
+                
+                if (index === this.currentStepIndex) {
+                    this.selectStep(Math.max(0, index - 1));
+                } else if (index < this.currentStepIndex) {
+                    this.currentStepIndex--;
+                    this.renderStepList();
+                } else {
+                    this.renderStepList();
+                }
+            }
+
+            moveStep(index, direction, e) {
+                e.stopPropagation();
+                if (direction === -1 && index > 0) {
+                    [this.data.steps[index], this.data.steps[index - 1]] = [this.data.steps[index - 1], this.data.steps[index]];
+                    this.selectStep(index - 1);
+                } else if (direction === 1 && index < this.data.steps.length - 1) {
+                    [this.data.steps[index], this.data.steps[index + 1]] = [this.data.steps[index + 1], this.data.steps[index]];
+                    this.selectStep(index + 1);
+                }
+            }
+
+            renderStepList() {
+                this.ui.stepList.innerHTML = '';
+                this.data.steps.forEach((step, i) => {
+                    const el = document.createElement('div');
+                    el.className = `step-item ${i === this.currentStepIndex ? 'active' : ''}`;
+                    
+                    // Main click selects the step
+                    el.onclick = () => {
+                        if (i !== this.currentStepIndex) this.selectStep(i);
+                    };
+                    
+                    el.innerHTML = `
+                        <div class="step-num">${i + 1}</div>
+                        <div style="flex-grow:1;">
+                            <input type="text" class="step-name-input" value="${step.title}">
+                        </div>
+                        <div class="step-actions">
+                            <button class="btn-mini" data-action="up"><i class="fa-solid fa-arrow-up"></i></button>
+                            <button class="btn-mini" data-action="down"><i class="fa-solid fa-arrow-down"></i></button>
+                            <button class="btn-mini" data-action="delete" style="color:var(--accent-danger)"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `;
+
+                    const input = el.querySelector('input');
+                    
+                    // 1. Stop click from bubbling to parent (prevents re-selecting if already selected)
+                    input.onclick = (e) => e.stopPropagation();
+                    
+                    // 2. Select step on focus (so you see what you are renaming)
+                    input.onfocus = () => {
+                        if (i !== this.currentStepIndex) this.selectStep(i);
+                    };
+                    
+                    // 3. Update Data ONLY (Do NOT re-render list here)
+                    input.oninput = (e) => {
+                        this.data.steps[i].title = e.target.value;
+                        // Only update the center header if this is the active step
+                        if (i === this.currentStepIndex) {
+                            this.ui.titleDisplay.textContent = e.target.value;
+                        }
+                    };
+
+                    // --- BUTTON LOGIC ---
+                    const upBtn = el.querySelector('[data-action="up"]');
+                    const downBtn = el.querySelector('[data-action="down"]');
+                    const delBtn = el.querySelector('[data-action="delete"]');
+
+                    upBtn.onclick = (e) => this.moveStep(i, -1, e);
+                    downBtn.onclick = (e) => this.moveStep(i, 1, e);
+                    delBtn.onclick = (e) => this.deleteStep(i, e);
+
+                    this.ui.stepList.appendChild(el);
+                });
+            }
+
+            // --- CANVAS LOGIC ---
+            
+            addComponent(type) {
+                if (this.currentStepIndex === -1) return;
+                const step = this.data.steps[this.currentStepIndex];
+                
+                let block = { 
+                    type: type,
+                    properties: {}
+                };
+                
+                if (type === 'heading') {
+                    block.text = 'New Heading';
+                    block.properties = {
+                        fontSize: '24px',
+                        fontWeight: 'bold',
+                        color: '#000000', // Black by default
+                        alignment: 'left',
+                        fontFamily: 'Arial, sans-serif'
+                    };
+                }
+                if (type === 'paragraph') {
+                    block.text = 'Enter text here...';
+                    block.properties = {
+                        fontSize: '16px',
+                        fontWeight: 'normal',
+                        color: '#000000', // Black by default
+                        alignment: 'left',
+                        lineHeight: '1.5'
+                    };
+                }
+                if (type === 'code') {
+                    block.text = 'print("Hello")';
+                    block.properties = {
+                        language: 'python',
+                        theme: 'dark',
+                        fontSize: '14px',
+                        showLineNumbers: true
+                    };
+                }
+                if (type === 'info') { 
+                    block.text = 'Note...'; 
+                    block.variant = 'info';
+                    block.properties = {
+                        type: 'info',
+                        icon: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderColor: '#3B82F6',
+                        textColor: '#000000' // Black by default
+                    };
+                }
+                if (type === 'video') { 
+                    block.url = ''; 
+                    block.properties = {
+                        width: '100%',
+                        height: '315px',
+                        autoplay: false,
+                        controls: true
+                    };
+                }
+                if (type === 'image') { 
+                    block.src = ''; 
+                    block.properties = {
+                        width: '100%',
+                        height: 'auto',
+                        alignment: 'center',
+                        borderRadius: '8px',
+                        caption: '',
+                        sourceType: 'url' // 'url' or 'upload'
+                    };
+                }
+                if (type === 'quiz') {
+                    block.question = 'Question?';
+                    block.options = ['Option A', 'Option B'];
+                    block.correctIndex = 0;
+                    block.successMessage = 'Correct!';
+                    block.failMessage = 'Try again.';
+                    block.properties = {
+                        shuffleOptions: false,
+                        showExplanation: true,
+                        allowRetry: true,
+                        points: 10
+                    };
+                }
+                if (type === 'exercise') {
+                    block.title = 'Practice Exercise';
+                    block.description = 'Complete the following exercise...';
+                    block.instructions = 'Step-by-step instructions here';
+                    block.properties = {
+                        difficulty: 'beginner',
+                        estimatedTime: '10 minutes',
+                        resources: [],
+                        solutionVisible: false
+                    };
+                }
+                if (type === 'hint') {
+                    block.text = 'Here\'s a hint...';
+                    block.properties = {
+                        level: 'easy',
+                        revealed: false,
+                        autoReveal: false,
+                        textColor: '#000000' // Black by default
+                    };
+                }
+                if (type === 'challenge') {
+                    block.title = 'Advanced Challenge';
+                    block.description = 'Try this challenging task...';
+                    block.properties = {
+                        difficulty: 'hard',
+                        points: 50,
+                        timeLimit: 0,
+                        requiredSkills: []
+                    };
+                }
+
+                step.content.push(block);
+                this.renderCanvas();
+            }
+
+            selectComponent(index) {
+                if (this.currentStepIndex === -1) return;
+                
+                this.selectedBlockIndex = index;
+                const block = this.data.steps[this.currentStepIndex].content[index];
+                this.selectedBlockType = block.type;
+                
+                this.showProperties(block);
+                this.renderCanvas();
+            }
+
+            editComponent(index) {
+                this.selectComponent(index);
+            }
+
+            deleteComponent(index) {
+                this.data.steps[this.currentStepIndex].content.splice(index, 1);
+                this.selectedBlockIndex = -1;
+                this.closeProperties();
+                this.renderCanvas();
+            }
+
+            moveComponent(index, direction) {
+                const content = this.data.steps[this.currentStepIndex].content;
+                if (direction === -1 && index > 0) {
+                    [content[index], content[index - 1]] = [content[index - 1], content[index]];
+                    if (this.selectedBlockIndex === index) this.selectedBlockIndex--;
+                } else if (direction === 1 && index < content.length - 1) {
+                    [content[index], content[index + 1]] = [content[index + 1], content[index]];
+                    if (this.selectedBlockIndex === index) this.selectedBlockIndex++;
+                }
+                this.renderCanvas();
+            }
+
+            renderCanvas() {
+                if (this.currentStepIndex === -1) return;
+                const step = this.data.steps[this.currentStepIndex];
+                this.ui.preview.innerHTML = '';
+                
+                if (step.content.length === 0) {
+                     this.ui.preview.innerHTML = `
+                        <div style="text-align: center; color: var(--text-secondary); margin-top: 100px;">
+                            <i class="fa-solid fa-layer-group" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                            <p>Select a tool from the right to add content.</p>
+                        </div>`;
+                     return;
+                }
+
+                step.content.forEach((block, index) => {
+                    const el = document.createElement('div');
+                    el.className = `preview-block ${index === this.selectedBlockIndex ? 'selected' : ''}`;
+                    
+                    const toolbar = document.createElement('div');
+                    toolbar.className = 'block-actions';
+                    toolbar.innerHTML = `
+                        <button class="btn-mini" onclick="builder.moveComponent(${index}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button class="btn-mini" onclick="builder.moveComponent(${index}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button class="btn-mini" onclick="builder.editComponent(${index})"><i class="fa-solid fa-edit"></i></button>
+                        <button class="btn-mini" style="color:var(--accent-danger)" onclick="builder.deleteComponent(${index})"><i class="fa-solid fa-xmark"></i></button>
+                    `;
+                    el.appendChild(toolbar);
+
+                    const label = document.createElement('span');
+                    label.className = 'block-type-label';
+                    label.textContent = block.type;
+                    label.style.fontSize = '0.7rem';
+                    label.style.color = 'var(--text-secondary)';
+                    label.style.position = 'absolute';
+                    label.style.top = '-18px';
+                    label.style.left = '8px';
+                    label.style.background = 'var(--bg-sidebar)';
+                    label.style.padding = '2px 6px';
+                    label.style.borderRadius = '4px';
+                    label.style.border = '1px solid var(--border-color)';
+                    el.appendChild(label);
+
+                    // --- START OF CORRECTIONS ---
+
+                    // 1. Text Based Components (Heading, Paragraph, Info, Hint)
+                    if (['heading', 'paragraph', 'info', 'hint'].includes(block.type)) {
+                        const display = document.createElement('div');
+                        display.textContent = block.text || block.title || block.description;
+                        
+                        // Apply styles dynamically
+                        if (block.properties) {
+                            // Fix: Map 'alignment' to 'textAlign'
+                            if (block.properties.alignment) display.style.textAlign = block.properties.alignment;
+                            // Fix: Map 'color' to 'color'
+                            if (block.properties.color) display.style.color = block.properties.color;
+                            // Fix: Map 'textColor' (used in info/hint) to 'color'
+                            if (block.properties.textColor) display.style.color = block.properties.textColor;
+                            
+                            if (block.properties.fontSize) display.style.fontSize = block.properties.fontSize;
+                            if (block.properties.fontWeight) display.style.fontWeight = block.properties.fontWeight;
+                            if (block.properties.fontFamily) display.style.fontFamily = block.properties.fontFamily;
+                            if (block.properties.lineHeight) display.style.lineHeight = block.properties.lineHeight;
+                        }
+                        
+                        if (block.type === 'info' || block.type === 'hint') {
+                            display.style.padding = '10px';
+                            display.style.borderRadius = '4px';
+                            display.style.marginTop = '5px';
+                            if (block.type === 'info') {
+                                display.style.background = block.properties?.backgroundColor || 'rgba(59, 130, 246, 0.1)';
+                                display.style.borderLeft = `4px solid ${block.properties?.borderColor || '#3B82F6'}`;
+                            }
+                            // Apply alignment to the container for info/hints so text aligns inside box
+                            if (block.properties?.alignment) display.style.textAlign = block.properties.alignment;
+                        }
+                        
+                        el.appendChild(display);
+                    }
+                    else if (block.type === 'code') {
+                        const pre = document.createElement('pre');
+                        pre.textContent = block.text;
+                        
+                        // Theme handling
+                        const isLight = block.properties?.theme === 'light';
+                        pre.style.background = isLight ? '#f5f5f5' : '#1a202c';
+                        pre.style.color = isLight ? '#333' : '#FFFFFF';
+                        
+                        pre.style.padding = '10px';
+                        pre.style.borderRadius = '4px';
+                        pre.style.fontFamily = 'monospace';
+                        pre.style.fontSize = block.properties?.fontSize || '14px';
+                        pre.style.overflowX = 'auto';
+                        el.appendChild(pre);
+                    }
+                    else if (block.type === 'video' && block.url) {
+                        const iframe = document.createElement('iframe');
+                        let embedUrl = block.url;
+                        if (embedUrl.includes('youtu.be/')) {
+                            const videoId = embedUrl.split('youtu.be/')[1].split('?')[0];
+                            embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                        } else if (embedUrl.includes('watch?v=')) {
+                            try {
+                                const urlObj = new URL(embedUrl);
+                                const videoId = urlObj.searchParams.get('v');
+                                if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                            } catch(e) {}
+                        }
+
+                        iframe.src = embedUrl;
+                        iframe.style.width = block.properties?.width || '100%';
+                        iframe.style.height = block.properties?.height || '315px';
+                        iframe.style.border = 'none';
+                        iframe.style.borderRadius = '8px';
+                        iframe.style.marginTop = '8px';
+                        iframe.setAttribute('credentialless', ''); 
+                        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+                        iframe.setAttribute('allowfullscreen', '');
+
+                        el.appendChild(iframe);
+                    }
+                    else if (block.type === 'image' && block.src) {
+                        const imgContainer = document.createElement('div');
+                        imgContainer.style.width = '100%';
+                        imgContainer.style.textAlign = block.properties?.alignment || 'center';
+
+                        const img = document.createElement('img');
+                        if (block.src.startsWith('http')) {
+                            img.crossOrigin = "anonymous";
+                        }
+
+                        img.src = block.src;
+                        
+                        // Image specific styles
+                        img.style.width = block.properties?.width || '100%';
+                        img.style.height = block.properties?.height || 'auto'; // Applied from your previous request
+                        img.style.borderRadius = block.properties?.borderRadius || '8px';
+                        img.style.display = 'inline-block'; 
+
+                        // Handle image loading errors gracefully
+                        img.onerror = function() {
+                            this.style.display = 'none';
+                            const err = document.createElement('span');
+                            err.style.color = 'red';
+                            err.style.fontSize = '0.8rem';
+                            err.textContent = '(Image blocked by security policy. Try Uploading instead)';
+                            imgContainer.appendChild(err);
+                        };
+
+                        imgContainer.appendChild(img);
+                        el.appendChild(imgContainer);
+                        
+                        if (block.properties?.caption) {
+                            const caption = document.createElement('div');
+                            caption.textContent = block.properties.caption;
+                            caption.style.textAlign = block.properties?.alignment || 'center';
+                            caption.style.fontSize = '0.8rem';
+                            caption.style.color = 'var(--text-secondary)';
+                            caption.style.marginTop = '5px';
+                            el.appendChild(caption);
+                        }
+                    }
+                    
+                    else if (block.type === 'quiz') {
+                        const q = document.createElement('div');
+                        q.textContent = block.question;
+                        q.style.fontWeight = 'bold';
+                        q.style.marginBottom = '10px';
+                        el.appendChild(q);
+                        
+                        block.options.forEach((opt, idx) => {
+                            const optEl = document.createElement('div');
+                            optEl.textContent = `${idx + 1}. ${opt}`;
+                            optEl.style.marginLeft = '10px';
+                            optEl.style.fontSize = '0.9rem';
+                            el.appendChild(optEl);
+                        });
+                    }
+                    else if (block.type === 'exercise') {
+                        const title = document.createElement('div');
+                        title.textContent = block.title;
+                        title.style.fontWeight = 'bold';
+                        title.style.color = 'var(--accent-primary)';
+                        title.style.marginBottom = '5px';
+                        el.appendChild(title);
+                        
+                        const desc = document.createElement('div');
+                        desc.textContent = block.description;
+                        desc.style.fontSize = '0.9rem';
+                        desc.style.color = 'var(--text-secondary)';
+                        el.appendChild(desc);
+                    }
+                    else if (block.type === 'challenge') {
+                        const title = document.createElement('div');
+                        title.textContent = block.title;
+                        title.style.fontWeight = 'bold';
+                        title.style.color = '#F59E0B';
+                        title.style.marginBottom = '5px';
+                        el.appendChild(title);
+                        
+                        const desc = document.createElement('div');
+                        desc.textContent = block.description;
+                        desc.style.fontSize = '0.9rem';
+                        el.appendChild(desc);
+                    }
+
+                    // Click to select
+                    el.onclick = (e) => {
+                        // Stop propagation so the body click listener doesn't immediately close the panel
+                        e.stopPropagation(); 
+                        if (!e.target.closest('.block-actions')) {
+                            this.selectComponent(index);
+                        }
+                    };
+
+                    this.ui.preview.appendChild(el);
+                });
+            }
+            // --- PROPERTIES PANEL ---
+            
+            showProperties(block) {
+                this.ui.toolsView.style.display = 'none';
+                this.ui.propertiesPanel.classList.add('active');
+                this.ui.propertiesTitle.textContent = `${block.type.charAt(0).toUpperCase() + block.type.slice(1)} Properties`;
+                
+                this.renderProperties(block);
+            }
+
+            closeProperties() {
+                this.ui.toolsView.style.display = 'block';
+                this.ui.propertiesPanel.classList.remove('active');
+                this.selectedBlockIndex = -1;
+                this.renderCanvas();
+            }
+
+            updateProperty(property, value) {
+                if (this.currentStepIndex === -1 || this.selectedBlockIndex === -1) return;
+                
+                const block = this.data.steps[this.currentStepIndex].content[this.selectedBlockIndex];
+                
+                // Handle special properties
+                if (property === 'text') {
+                    block.text = value;
+                } else if (property.startsWith('option_')) {
+                    const index = parseInt(property.split('_')[1]);
+                    if (block.options && block.options[index] !== undefined) {
+                        block.options[index] = value;
+                    }
+                } else {
+                    this.setNestedProperty(block, property, value);
+                }
+                
+                // Re-render canvas immediately
+                this.renderCanvas();
+            }
+
+            setNestedProperty(obj, path, value) {
+                const parts = path.split('.');
+                let current = obj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    if (!current[parts[i]]) current[parts[i]] = {};
+                    current = current[parts[i]];
+                }
+                current[parts[parts.length - 1]] = value;
+            }
+
+            renderProperties(block) {
+                this.ui.propertiesContent.innerHTML = '';
+                
+                // Common properties for text-based components
+                if (['heading', 'paragraph', 'info', 'hint'].includes(block.type)) {
+                    this.addTextInput('text', 'Content', block.text || '', 'textarea');
+                    
+                    const group = this.createPropertyGroup('Text Styling');
+                    
+                    // Font Family
+                    this.addSelectInput('properties.fontFamily', 'Font Family', [
+                        {value: 'Arial, sans-serif', label: 'Arial'},
+                        {value: 'Georgia, serif', label: 'Georgia'},
+                        {value: 'Courier New, monospace', label: 'Monospace'},
+                        {value: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif', label: 'System Default'}
+                    ], block.properties?.fontFamily || 'Arial, sans-serif');
+                    
+                    // Font Size
+                    this.addSelectInput('properties.fontSize', 'Font Size', [
+                        {value: '12px', label: 'Small (12px)'},
+                        {value: '16px', label: 'Normal (16px)'},
+                        {value: '20px', label: 'Large (20px)'},
+                        {value: '24px', label: 'Extra Large (24px)'},
+                        {value: '32px', label: 'Huge (32px)'}
+                    ], block.properties?.fontSize || (block.type === 'heading' ? '24px' : '16px'));
+                    
+                    // Font Weight
+                    if (block.type === 'heading') {
+                        this.addSelectInput('properties.fontWeight', 'Font Weight', [
+                            {value: 'normal', label: 'Normal'},
+                            {value: 'bold', label: 'Bold'},
+                            {value: 'bolder', label: 'Bolder'},
+                            {value: 'lighter', label: 'Lighter'}
+                        ], block.properties?.fontWeight || 'bold');
+                    }
+                    
+                    // Text Color - Black by default
+                    this.addColorInput('properties.color', 'Text Color', block.properties?.color || '#000000');
+                    
+                    // Alignment
+                    this.addSelectInput('properties.alignment', 'Alignment', [
+                        {value: 'left', label: 'Left'},
+                        {value: 'center', label: 'Center'},
+                        {value: 'right', label: 'Right'},
+                        {value: 'justify', label: 'Justify'}
+                    ], block.properties?.alignment || 'left');
+                    
+                    // Line Height for paragraphs
+                    if (block.type === 'paragraph') {
+                        this.addSelectInput('properties.lineHeight', 'Line Height', [
+                            {value: '1', label: 'Single'},
+                            {value: '1.5', label: '1.5 Lines'},
+                            {value: '2', label: 'Double'}
+                        ], block.properties?.lineHeight || '1.5');
+                    }
+                    
+                    this.ui.propertiesContent.appendChild(group);
+                }
+                
+                // Specific properties for each component type
+                switch(block.type) {
+                    case 'code':
+                        this.addTextInput('text', 'Code Content', block.text || '', 'textarea');
+                        
+                        const codeGroup = this.createPropertyGroup('Code Settings');
+                        this.addSelectInput('properties.language', 'Programming Language', [
+                            {value: 'python', label: 'Python'},
+                            {value: 'javascript', label: 'JavaScript'},
+                            {value: 'html', label: 'HTML'},
+                            {value: 'css', label: 'CSS'},
+                            {value: 'cpp', label: 'C++'},
+                            {value: 'java', label: 'Java'}
+                        ], block.properties?.language || 'python');
+                        
+                        this.addSelectInput('properties.theme', 'Code Theme', [
+                            {value: 'dark', label: 'Dark'},
+                            {value: 'light', label: 'Light'},
+                            {value: 'monokai', label: 'Monokai'}
+                        ], block.properties?.theme || 'dark');
+                        
+                        this.addCheckboxInput('properties.showLineNumbers', 'Show Line Numbers', block.properties?.showLineNumbers || true);
+                        this.ui.propertiesContent.appendChild(codeGroup);
+                        break;
+                        
+                    case 'image':
+                        const imageGroup = this.createPropertyGroup('Image Settings');
+                        
+                        // 1. Source Type Select
+                        const typeContainer = document.createElement('div');
+                        typeContainer.style.marginBottom = '15px';
+                        
+                        const typeLabel = document.createElement('label');
+                        typeLabel.className = 'property-label';
+                        typeLabel.textContent = 'Image Source';
+                        
+                        const typeSelect = document.createElement('select');
+                        typeSelect.className = 'property-control';
+                        
+                        ['url', 'upload'].forEach(val => {
+                            const opt = document.createElement('option');
+                            opt.value = val;
+                            opt.textContent = val === 'url' ? 'URL' : 'Upload';
+                            if ((block.properties?.sourceType || 'url') === val) opt.selected = true;
+                            typeSelect.appendChild(opt);
+                        });
+
+                        typeContainer.appendChild(typeLabel);
+                        typeContainer.appendChild(typeSelect);
+                        imageGroup.appendChild(typeContainer);
+
+                        // 2. URL Input Container
+                        const urlContainer = document.createElement('div');
+                        urlContainer.style.marginBottom = '15px';
+                        urlContainer.style.display = (block.properties?.sourceType || 'url') === 'url' ? 'block' : 'none';
+                        
+                        const urlLabel = document.createElement('label');
+                        urlLabel.className = 'property-label';
+                        urlLabel.textContent = 'Image URL';
+                        
+                        const urlInput = document.createElement('input');
+                        urlInput.type = 'text';
+                        urlInput.className = 'property-control';
+                        urlInput.value = block.src && !block.src.startsWith('data:image') ? block.src : '';
+                        urlInput.placeholder = 'https://example.com/image.jpg';
+                        urlInput.oninput = (e) => this.updateProperty('src', e.target.value);
+                        
+                        urlContainer.appendChild(urlLabel);
+                        urlContainer.appendChild(urlInput);
+                        imageGroup.appendChild(urlContainer);
+                        
+                        // 3. Upload Button Container
+                        const uploadContainer = document.createElement('div');
+                        uploadContainer.style.marginBottom = '15px';
+                        uploadContainer.style.display = block.properties?.sourceType === 'upload' ? 'block' : 'none';
+                        
+                        const uploadLabel = document.createElement('label');
+                        uploadLabel.className = 'property-label';
+                        uploadLabel.textContent = 'Upload Image';
+                        
+                        const uploadBtn = document.createElement('button');
+                        uploadBtn.type = 'button';
+                        uploadBtn.className = 'upload-btn';
+                        uploadBtn.innerHTML = '<i class="fa-solid fa-upload"></i> Choose Image';
+                        
+                        const fileInput = document.createElement('input');
+                        fileInput.type = 'file';
+                        fileInput.accept = 'image/*';
+                        fileInput.style.display = 'none';
+                        
+                        // File selection logic - Converts to Base64
+                        fileInput.onchange = (e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                    // event.target.result is the Base64 string
+                                    this.updateProperty('src', event.target.result);
+                                    
+                                    const preview = imageGroup.querySelector('.img-preview');
+                                    if (preview) {
+                                        preview.src = event.target.result;
+                                        preview.style.display = 'block';
+                                    }
+                                };
+                                reader.readAsDataURL(file); // This triggers the conversion
+                            }
+                        };
+                        
+                        uploadBtn.onclick = () => fileInput.click();
+                        
+                        uploadContainer.appendChild(uploadLabel);
+                        uploadContainer.appendChild(uploadBtn);
+                        uploadContainer.appendChild(fileInput);
+                        imageGroup.appendChild(uploadContainer);
+
+                        // 4. Attach Event Listener to Dropdown
+                        typeSelect.onchange = (e) => {
+                            const val = e.target.value;
+                            this.updateProperty('properties.sourceType', val);
+                            urlContainer.style.display = val === 'url' ? 'block' : 'none';
+                            uploadContainer.style.display = val === 'upload' ? 'block' : 'none';
+                        };
+                        
+                        // 5. Image Preview Area
+                        const previewContainer = document.createElement('div');
+                        previewContainer.style.marginTop = '10px';
+                        
+                        const previewImg = document.createElement('img');
+                        previewImg.className = 'img-preview';
+                        previewImg.style.maxWidth = '100%';
+                        previewImg.style.maxHeight = '200px';
+                        previewImg.style.display = block.src ? 'block' : 'none';
+                        if (block.src && block.src.startsWith('http')) {
+                            previewImg.crossOrigin = "anonymous";
+                        }
+                        if (block.src) previewImg.src = block.src;
+                        
+                        previewImg.onerror = function() {
+                            this.style.display = 'none';
+                        };
+                        
+                        previewContainer.appendChild(previewImg);
+                        imageGroup.appendChild(previewContainer);
+                        
+                        // 6. Other image properties
+                        
+                        // Caption
+                        const captionDiv = document.createElement('div');
+                        captionDiv.style.marginBottom = '15px';
+                        captionDiv.innerHTML = `<label class="property-label">Caption</label><input type="text" class="property-control" value="${block.properties?.caption || ''}">`;
+                        captionDiv.querySelector('input').oninput = (e) => this.updateProperty('properties.caption', e.target.value);
+                        imageGroup.appendChild(captionDiv);
+
+                        // Alignment
+                        const alignContainer = document.createElement('div');
+                        alignContainer.style.marginBottom = '15px';
+                        alignContainer.innerHTML = '<label class="property-label">Alignment</label>';
+                        const alignSelect = document.createElement('select');
+                        alignSelect.className = 'property-control';
+                        ['left', 'center', 'right'].forEach(a => {
+                            const opt = document.createElement('option');
+                            opt.value = a;
+                            opt.textContent = a.charAt(0).toUpperCase() + a.slice(1);
+                            if((block.properties?.alignment || 'center') === a) opt.selected = true;
+                            alignSelect.appendChild(opt);
+                        });
+                        alignSelect.onchange = (e) => this.updateProperty('properties.alignment', e.target.value);
+                        alignContainer.appendChild(alignSelect);
+                        imageGroup.appendChild(alignContainer);
+
+                        // Dimensions Row (Width & Height)
+                        const dimRow = document.createElement('div');
+                        dimRow.style.display = 'flex';
+                        dimRow.style.gap = '10px';
+                        dimRow.style.marginBottom = '15px';
+
+                        // Width
+                        const widthDiv = document.createElement('div');
+                        widthDiv.style.flex = '1';
+                        widthDiv.innerHTML = `<label class="property-label">Width</label><input type="text" class="property-control" value="${block.properties?.width || '100%'}">`;
+                        widthDiv.querySelector('input').oninput = (e) => this.updateProperty('properties.width', e.target.value);
+
+                        // Height (New Feature)
+                        const heightDiv = document.createElement('div');
+                        heightDiv.style.flex = '1';
+                        heightDiv.innerHTML = `<label class="property-label">Height</label><input type="text" class="property-control" value="${block.properties?.height || 'auto'}">`;
+                        heightDiv.querySelector('input').oninput = (e) => this.updateProperty('properties.height', e.target.value);
+
+                        dimRow.appendChild(widthDiv);
+                        dimRow.appendChild(heightDiv);
+                        imageGroup.appendChild(dimRow);
+
+                        this.ui.propertiesContent.appendChild(imageGroup);
+                        break;
+
+
+                    case 'video':
+                        this.addTextInput('url', 'Video URL', block.url || '');
+                        
+                        const vidGroup = this.createPropertyGroup('Video Settings');
+                        this.addTextInput('properties.width', 'Width', block.properties?.width || '100%');
+                        this.addTextInput('properties.height', 'Height', block.properties?.height || '315px');
+                        this.addCheckboxInput('properties.autoplay', 'Autoplay', block.properties?.autoplay || false);
+                        this.addCheckboxInput('properties.controls', 'Show Controls', block.properties?.controls || true);
+                        this.ui.propertiesContent.appendChild(vidGroup);
+                        break;
+                        
+                    case 'quiz':
+                        this.addTextInput('question', 'Question', block.question || '');
+                        
+                        // Quiz Options
+                        const optionsGroup = this.createPropertyGroup('Options');
+                        if (block.options && block.options.length > 0) {
+                            block.options.forEach((option, index) => {
+                                this.addTextInput(`option_${index}`, `Option ${index + 1}`, option);
+                            });
+                        }
+                        
+                        // Add new option button
+                        const addOptionBtn = document.createElement('button');
+                        addOptionBtn.type = 'button';
+                        addOptionBtn.className = 'btn btn-secondary';
+                        addOptionBtn.textContent = 'Add Option';
+                        addOptionBtn.style.marginTop = '10px';
+                        addOptionBtn.onclick = () => {
+                            if (!block.options) block.options = [];
+                            block.options.push('');
+                            this.renderProperties(block);
+                        };
+                        optionsGroup.appendChild(addOptionBtn);
+                        this.ui.propertiesContent.appendChild(optionsGroup);
+                        
+                        // Correct Answer
+                        if (block.options && block.options.length > 0) {
+                            this.addSelectInput('correctIndex', 'Correct Answer', 
+                                block.options.map((_, i) => ({value: i.toString(), label: `Option ${i + 1}`})),
+                                block.correctIndex?.toString() || '0'
+                            );
+                        }
+                        
+                        // Quiz Settings
+                        const quizSettings = this.createPropertyGroup('Quiz Settings');
+                        this.addCheckboxInput('properties.shuffleOptions', 'Shuffle Options', block.properties?.shuffleOptions || false);
+                        this.addCheckboxInput('properties.showExplanation', 'Show Explanation', block.properties?.showExplanation || true);
+                        this.addCheckboxInput('properties.allowRetry', 'Allow Retry', block.properties?.allowRetry || true);
+                        this.addNumberInput('properties.points', 'Points', block.properties?.points || 10, 0, 100);
+                        this.ui.propertiesContent.appendChild(quizSettings);
+                        break;
+                        
+                    case 'exercise':
+                        this.addTextInput('title', 'Exercise Title', block.title || '');
+                        this.addTextInput('description', 'Description', block.description || '', 'textarea');
+                        this.addTextInput('instructions', 'Instructions', block.instructions || '', 'textarea');
+                        
+                        const exGroup = this.createPropertyGroup('Exercise Settings');
+                        this.addSelectInput('properties.difficulty', 'Difficulty', [
+                            {value: 'beginner', label: 'Beginner'},
+                            {value: 'intermediate', label: 'Intermediate'},
+                            {value: 'advanced', label: 'Advanced'}
+                        ], block.properties?.difficulty || 'beginner');
+                        
+                        this.addTextInput('properties.estimatedTime', 'Estimated Time', block.properties?.estimatedTime || '10 minutes');
+                        this.addCheckboxInput('properties.solutionVisible', 'Show Solution Initially', block.properties?.solutionVisible || false);
+                        this.ui.propertiesContent.appendChild(exGroup);
+                        break;
+                        
+                    case 'challenge':
+                        this.addTextInput('title', 'Challenge Title', block.title || '');
+                        this.addTextInput('description', 'Description', block.description || '', 'textarea');
+                        
+                        const chalGroup = this.createPropertyGroup('Challenge Settings');
+                        this.addSelectInput('properties.difficulty', 'Difficulty', [
+                            {value: 'medium', label: 'Medium'},
+                            {value: 'hard', label: 'Hard'},
+                            {value: 'expert', label: 'Expert'}
+                        ], block.properties?.difficulty || 'hard');
+                        
+                        this.addNumberInput('properties.points', 'Points', block.properties?.points || 50, 0, 1000);
+                        this.addNumberInput('properties.timeLimit', 'Time Limit (minutes)', block.properties?.timeLimit || 0, 0, 180);
+                        this.ui.propertiesContent.appendChild(chalGroup);
+                        break;
+                }
+            }
+
+            createPropertyGroup(title) {
+                const group = document.createElement('div');
+                group.className = 'property-group';
+                
+                const titleEl = document.createElement('h4');
+                titleEl.textContent = title;
+                titleEl.style.margin = '0 0 15px 0';
+                titleEl.style.fontSize = '0.85rem';
+                titleEl.style.color = 'var(--text-primary)';
+                titleEl.style.textTransform = 'uppercase';
+                titleEl.style.letterSpacing = '0.5px';
+                
+                group.appendChild(titleEl);
+                return group;
+            }
+
+            addTextInput(property, label, value, type = 'text') {
+                const container = document.createElement('div');
+                container.style.marginBottom = '15px';
+                
+                const labelEl = document.createElement('label');
+                labelEl.className = 'property-label';
+                labelEl.textContent = label;
+                labelEl.htmlFor = `prop-${property}`;
+                
+                let input;
+                if (type === 'textarea') {
+                    input = document.createElement('textarea');
+                    input.rows = 4;
+                    input.className = 'property-control';
+                } else {
+                    input = document.createElement('input');
+                    input.type = type;
+                    input.className = 'property-control';
+                }
+                
+                input.id = `prop-${property}`;
+                input.dataset.property = property;
+                input.value = value;
+                input.oninput = (e) => this.updateProperty(property, e.target.value);
+                
+                container.appendChild(labelEl);
+                container.appendChild(input);
+                this.ui.propertiesContent.appendChild(container);
+            }
+
+            addNumberInput(property, label, value, min = 0, max = 100) {
+                const container = document.createElement('div');
+                container.style.marginBottom = '15px';
+                
+                const labelEl = document.createElement('label');
+                labelEl.className = 'property-label';
+                labelEl.textContent = label;
+                labelEl.htmlFor = `prop-${property}`;
+                
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'property-control';
+                input.id = `prop-${property}`;
+                input.dataset.property = property;
+                input.value = value;
+                input.min = min;
+                input.max = max;
+                input.oninput = (e) => this.updateProperty(property, e.target.value);
+                
+                container.appendChild(labelEl);
+                container.appendChild(input);
+                this.ui.propertiesContent.appendChild(container);
+            }
+
+            addSelectInput(property, label, options, value) {
+                const container = document.createElement('div');
+                container.style.marginBottom = '15px';
+                
+                const labelEl = document.createElement('label');
+                labelEl.className = 'property-label';
+                labelEl.textContent = label;
+                labelEl.htmlFor = `prop-${property}`;
+                
+                const select = document.createElement('select');
+                select.className = 'property-control';
+                select.id = `prop-${property}`;
+                select.dataset.property = property;
+                select.onchange = (e) => this.updateProperty(property, e.target.value);
+                
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.label;
+                    if (opt.value === value) option.selected = true;
+                    select.appendChild(option);
+                });
+                
+                container.appendChild(labelEl);
+                container.appendChild(select);
+                this.ui.propertiesContent.appendChild(container);
+            }
+
+            addCheckboxInput(property, label, checked) {
+                const container = document.createElement('div');
+                container.className = 'checkbox-group';
+                container.style.marginBottom = '10px';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `prop-${property}`;
+                checkbox.dataset.property = property;
+                checkbox.checked = checked;
+                checkbox.onchange = (e) => this.updateProperty(property, e.target.checked);
+                
+                const labelEl = document.createElement('label');
+                labelEl.htmlFor = `prop-${property}`;
+                labelEl.textContent = label;
+                labelEl.style.fontSize = '0.85rem';
+                labelEl.style.cursor = 'pointer';
+                
+                container.appendChild(checkbox);
+                container.appendChild(labelEl);
+                this.ui.propertiesContent.appendChild(container);
+            }
+
+            addColorInput(property, label, value) {
+                const container = document.createElement('div');
+                container.style.marginBottom = '15px';
+                
+                const labelEl = document.createElement('label');
+                labelEl.className = 'property-label';
+                labelEl.textContent = label;
+                labelEl.htmlFor = `prop-${property}`;
+                
+                const colorContainer = document.createElement('div');
+                colorContainer.style.display = 'flex';
+                colorContainer.style.gap = '10px';
+                colorContainer.style.alignItems = 'center';
+                
+                const colorInput = document.createElement('input');
+                colorInput.type = 'color';
+                colorInput.id = `prop-${property}`;
+                colorInput.dataset.property = property;
+                colorInput.value = value;
+                colorInput.style.width = '40px';
+                colorInput.style.height = '40px';
+                colorInput.style.cursor = 'pointer';
+                colorInput.oninput = (e) => {
+                    textInput.value = e.target.value;
+                    this.updateProperty(property, e.target.value);
+                };
+                
+                const textInput = document.createElement('input');
+                textInput.type = 'text';
+                textInput.className = 'property-control';
+                textInput.value = value;
+                textInput.style.flex = '1';
+                textInput.oninput = (e) => {
+                    colorInput.value = e.target.value;
+                    this.updateProperty(property, e.target.value);
+                };
+                
+                colorContainer.appendChild(colorInput);
+                colorContainer.appendChild(textInput);
+                
+                container.appendChild(labelEl);
+                container.appendChild(colorContainer);
+                this.ui.propertiesContent.appendChild(container);
+            }
+
+            exportJSON() {
+                const json = JSON.stringify(this.data, null, 2);
+                const blob = new Blob([json], {type: "application/json"});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${this.data.meta.title.replace(/\s+/g, '_').toLowerCase()}.json`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            importJSON(input) {
+                const file = input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const json = JSON.parse(e.target.result);
+                        if (!json.steps) throw new Error("Invalid format");
+                        this.data = json;
+                        document.getElementById('meta-title').value = this.data.meta.title || '';
+                        document.getElementById('meta-author').value = this.data.meta.author || '';
+                        document.getElementById('meta-difficulty').value = this.data.meta.difficulty || 'Beginner';
+                        this.selectStep(0);
+                    } catch (err) { alert("Error: " + err.message); }
+                };
+                reader.readAsText(file);
+                input.value = ''; 
+            }
+        }
+
+        const builder = new TutorialBuilder();
+    </script>
+</body>
+</html>

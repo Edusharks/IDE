@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Block IDE</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- OWNERSHIP METADATA -->
+    <meta name="author" content="Guhan S">
+    <meta name="copyright" content="Edusharks Learning and Research Pvt Ltd">
+    <meta name="owner" content="Edusharks Learning and Research Pvt Ltd">
+    <meta name="application-name" content="Block IDE">
+    
+    <!-- Hidden Comment in Source -->
+    <!-- 
+        Application: Block IDE
+        Property of: Edusharks Learning and Research Pvt Ltd
+        Lead Developer: Guhan S
+    -->
+        
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self' blob: data:; 
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com;       
+      connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://unpkg.com https://raw.githubusercontent.com https://teachablemachine.withgoogle.com ws:; 
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
+      font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;       
+      img-src 'self' data: blob: https: https://unpkg.com https://*.ytimg.com; 
+      media-src 'self' https://unpkg.com blob:; 
+      worker-src 'self' blob: data:;
+      frame-src 'self' https://www.youtube.com https://youtube.com;
+    ">
+
+  <!-- Theme Initialization Script -->
+  <script>
+    (function() {
+      try {
+        const theme = localStorage.getItem('app_setting_theme') || 'light'; 
+        const accent = localStorage.getItem('app_setting_color') || '#5A67D8';
+        const root = document.documentElement;
+        
+        root.style.setProperty('--loader-accent', accent);
+        
+        if (theme === 'light') {
+          root.style.setProperty('--loader-bg', 'rgba(240, 244, 248, 0.85)');
+          root.style.setProperty('--loader-text', '#475569');
+          root.style.setProperty('--loader-ring-base', 'rgba(0,0,0,0.1)');
+          root.style.setProperty('--loader-shadow', 'rgba(0,0,0,0.1)');
+        } else if (theme === 'contrast') {
+          root.style.setProperty('--loader-bg', 'rgba(0, 0, 0, 0.95)');
+          root.style.setProperty('--loader-text', '#FFFF00');
+          root.style.setProperty('--loader-ring-base', '#333333');
+          root.style.setProperty('--loader-shadow', accent);
+        } else {
+          root.style.setProperty('--loader-bg', 'rgba(11, 14, 20, 0.85)');
+          root.style.setProperty('--loader-text', 'rgba(255, 255, 255, 0.5)');
+          root.style.setProperty('--loader-ring-base', 'rgba(144, 164, 174, 0.1)');
+          root.style.setProperty('--loader-shadow', accent);
+        }
+      } catch (e) {
+        document.documentElement.style.setProperty('--loader-bg', 'rgba(11, 14, 20, 0.85)');
+        document.documentElement.style.setProperty('--loader-accent', '#5A67D8');
+      }
+    })();
+  </script>
+
+  <!-- Loader Styles -->
+  <style>
+    #app-loader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--loader-bg); backdrop-filter: blur(8px); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.6s; }
+    #app-loader.loaded { opacity: 0; visibility: hidden; }
+    .neural-loader { position: relative; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; }
+    .neural-core { width: 24px; height: 24px; background: var(--loader-accent); border-radius: 4px; box-shadow: 0 0 20px var(--loader-shadow); animation: core-pulse 1.5s ease-in-out infinite alternate; z-index: 2; }
+    .neural-ring { position: absolute; width: 60px; height: 60px; border: 2px solid var(--loader-ring-base); border-top-color: var(--loader-accent); border-right-color: var(--loader-accent); border-radius: 50%; animation: ring-spin 1.2s linear infinite; }
+    .neural-ring-inner { position: absolute; width: 40px; height: 40px; border: 2px solid var(--loader-ring-base); border-bottom-color: var(--loader-accent); border-left-color: var(--loader-accent); border-radius: 50%; opacity: 0.5; animation: ring-spin-rev 1.5s linear infinite; }
+    .loader-text { margin-top: 30px; font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; color: var(--loader-text); text-transform: uppercase; animation: text-flicker 3s infinite; }
+    @keyframes ring-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes ring-spin-rev { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
+    @keyframes core-pulse { 0% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 10px var(--loader-shadow); } 100% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 30px var(--loader-shadow); } }
+    @keyframes text-flicker { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
+  </style>
+
+  <link rel="stylesheet" href="./src/ide/styles/tutorial.css">
+  
+</head>
+
+<body>
+
+  <!-- ============================================
+       APP LOADER
+  ============================================= -->
+  <div id="app-loader">
+    <div class="neural-loader">
+      <div class="neural-ring"></div>
+      <div class="neural-ring-inner"></div>
+      <div class="neural-core"></div>
+    </div>
+    <div class="loader-text">Initializing...</div>
+  </div>
+
+  <div class="ide-container">
+    
+    <!-- ============================================
+         HEADER
+    ============================================= -->
+    <header class="main-header">
+      <!-- 1.Project Title & Navigation -->
+      
+      <div class="header-project-info">
+          <button id="back-to-projects-btn" class="btn icon-btn" title="Home">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+          </button>
+          <div id="project-title-wrapper">
+              <h1 id="current-project-name">Project Name</h1>
+          </div>
+      </div>
+
+      <!-- 2. CENTER: View Toggle + Live Button -->
+      <div class="header-view-toggle">
+    
+          <!-- MOVE BUTTON HERE -->
+          <button id="live-mode-btn" class="btn icon-btn" title="Toggle Live Mode">
+              <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </button>
+
+          <div class="view-toggle-btn-group">
+              <button id="blocks-view-btn" class="view-toggle-btn active">BLOCKS</button>
+              <button id="code-view-btn" class="view-toggle-btn">CODE</button>
+          </div>
+      </div>
+
+      <!-- Header Tools & Actions -->
+      <div class="header-actions">
+        <button id="plotter-btn" class="btn" title="Live Data Plotter">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+          <span>Plotter</span>
+        </button>
+        <button id="ai-monitor-btn" class="btn" title="AI Monitor">
+          <svg viewBox="0 0 24 24"><path d="M12 12a3 3 0 100-6 3 3 0 000 6z"/><path d="M20.9 19.8A10 10 0 103.1 4.2"/></svg>
+          <span>AI Monitor</span>
+        </button>
+        <button id="dashboard-btn" class="btn" title="IoT Dashboard" style="display: none;">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/><path d="M18 10h-1.26A8 8 0 1 0 4 16.25"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button id="share-project-btn" class="btn" title="Generate a shareable link for this project">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span>Share</span>
+        </button>
+        <button id="start-tutorial-btn" class="btn" title="Start a Tutorial">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>
+          <span>Tutorials</span>
+        </button>
+        <button id="console-btn" class="btn" title="Console">
+          <svg viewBox="0 0 24 24"><path d="M18 10L12 16L6 10" /></svg>
+          <span>Console</span>
+        </button>
+      </div>
+    </header>
+
+
+    <!-- ============================================
+         LEFT SIDEBAR
+    ============================================= -->
+    <aside class="left-sidebar">
+      <div class="sidebar-top">
+        
+        <!-- Sidebar View 1: Board Simulator -->
+        <div id="sidebar-board-view" class="sidebar-view active">
+          
+          <div class="simulator-wrapper">
+            <div id="simulator-canvas-container" class="board-viewer">
+              
+              <button id="toggle-pin-labels-btn" class="sim-floating-btn" title="Toggle Pin Labels">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              </button>
+
+              <div id="sim-component-toolbar" class="sim-component-toolbar" style="display: none;">
+                <input type="text" id="sim-comp-name" placeholder="Component Name">
+                <button id="sim-comp-rotate-left" title="Rotate Left">&circlearrowleft;</button>
+                <button id="sim-comp-rotate-right" title="Rotate Right">&circlearrowright;</button>
+                <button id="sim-comp-flip-h" title="Flip Horizontal">&leftrightarrow;</button>
+                <button id="sim-comp-delete" title="Delete">&times;</button>
+              </div>
+
+              <div id="sim-component-props-bar" class="sim-component-props-bar" style="display: none;">
+                <!-- Content injected by JS -->
+              </div>
+
+              <div id="sim-wire-toolbar" class="sim-wire-toolbar">
+
+                <div class="sim-history-group">
+                    <button id="sim-undo-btn" class="sim-hist-btn" title="Undo (Ctrl+Z)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+                    </button>
+                    <button id="sim-redo-btn" class="sim-hist-btn" title="Redo (Ctrl+Y)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13"/></svg>
+                    </button>
+                    <div class="sim-hist-sep"></div>
+                </div>
+                
+                <span>Wire Color:</span>
+                <div class="color-swatch active" data-color="#2D3748" style="background-color: #2D3748;"></div>
+                <div class="color-swatch" data-color="#E53E3E" style="background-color: #E53E3E;"></div>
+                <div class="color-swatch" data-color="#3182CE" style="background-color: #3182CE;"></div>
+                <div class="color-swatch" data-color="#38A169" style="background-color: #38A169;"></div>
+                <div class="color-swatch" data-color="#D69E2E" style="background-color: #D69E2E;"></div>
+                <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF;"></div>
+                <div class="color-swatch" data-color="#805AD5" style="background-color: #805AD5;"></div>
+                <div class="color-swatch" data-color="#DD6B20" style="background-color: #DD6B20;"></div>
+                <div class="color-swatch" data-color="#718096" style="background-color: #718096;"></div>
+                <div class="color-swatch" data-color="#319795" style="background-color: #319795;"></div>
+              </div>
+
+              <div id="ai-camera-wrapper">
+                <div class="ai-cam-handle" id="ai-cam-drag-handle">
+                  <span>:: AI Vision Feed</span>
+                  <span style="cursor: pointer;" onclick="document.getElementById('camera-toggle-btn').click()">×</span>
+                </div>
+                <div class="ai-video-container">
+                  <video id="sidebar-webcam" playsinline autoplay muted></video>
+                  <canvas id="sidebar-canvas-overlay"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Component Palette -->
+          <div id="component-palette" class="component-palette">
+            <div class="palette-header">Components</div>
+            <div id="palette-content" class="palette-content">
+              <!-- Components loaded by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar View 2: File Explorer -->
+        <div id="sidebar-file-view" class="sidebar-view">
+          <div id="file-explorer-wrapper">
+            <div class="file-explorer-header">
+              <h3>Project Files</h3>
+              <div class="file-explorer-actions">
+                <button id="device-files-btn" class="btn icon-btn" title="Device File Manager">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                </button>
+                <button id="new-file-btn" class="btn icon-btn" title="New File">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+              </div>
+            </div>
+            <div id="file-tree-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer (Controls & Upload) -->
+      <div class="sidebar-footer">
+        <div class="sidebar-controls">
+          <button id="play-pause-btn" class="btn icon-btn" title="Run/Pause Execution">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          </button>
+          <button id="restart-btn" class="btn icon-btn" title="Restart Simulation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+          <button id="fit-screen-btn" class="btn icon-btn" title="Fit to Screen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          </button>
+          <button id="grid-toggle-btn" class="btn icon-btn" title="Toggle Grid">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          </button>
+          <button id="camera-toggle-btn" class="btn icon-btn" title="Toggle Camera View">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </button>
+          <button id="fullscreen-btn" class="btn icon-btn" title="Toggle Full Screen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          </button>
+        </div>
+
+        <div class="sidebar-bottom">
+          <div class="action-grid">
+            <button id="upload-code" class="btn primary" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Upload to ESP32</span>
+            </button>
+            <div class="dropdown">
+              <button id="more-actions-btn" class="btn icon-btn" title="More Actions">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+              <div class="dropdown-content">
+                <a href="#" id="connect-usb-btn">Connect via USB</a>
+                <a href="#" id="connect-wifi-btn">Connect via Wi-Fi</a>
+                <a href="#" id="connect-ble-btn" style="display: none;">Connect via BLE</a>
+                <a href="#" id="disconnect-btn" style="display: none; color: var(--accent-error);">Disconnect</a>
+                <div class="dropdown-divider"></div>
+                <a href="#" id="export-project-dropdown-btn">Export Project</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Resizer Handle -->
+    <div id="layout-resizer" title="Drag to resize">
+      <div class="resizer-grip-icon">
+        <svg width="14" height="24" viewBox="0 0 14 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 7v10M9 7v10" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- ============================================
+         MAIN CONTENT AREA
+    ============================================= -->
+    <main class="main-content">
+      <div id="blocklyArea"></div>
+      
+      <div class="workspace-floating-actions">
+        <button id="workspace-redo-btn" class="btn-floating" title="Redo (Ctrl+Y)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 7v6h-6"></path>
+                <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
+            </svg>
+        </button>
+        <button id="workspace-undo-btn" class="btn-floating" title="Undo (Ctrl+Z)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 7v6h6"></path>
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 10"></path>
+            </svg>
+        </button>
+    </div>
+
+      
+      <div id="code-only-overlay" style="display: none;">
+        <div class="code-only-message">
+          <svg viewBox="0 0 24 24"><path d="M10 22v-6M14 22v-6"/><path d="M4 8V4h16v4"/><path d="M6 16h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2z"/></svg>
+          <h2>Editing Device File</h2>
+          <p>You are viewing a file directly from the device. Block editing is disabled to prevent accidental changes.<br>Switch to <strong>main.py</strong> in the file explorer to return to the block editor.</p>
+        </div>
+      </div>
+
+      <div id="monaco-editor-container" style="width:100%; height:100%; display: none;"></div>
+
+      <div id="read-only-banner" style="display: none;">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <div>
+          <h4>Read-Only Mode</h4>
+          <p>You are viewing a file from the device. Editing is disabled. Select <strong>main.py</strong> to return to the block editor.</p>
+        </div>
+      </div>
+
+      <!-- Console View -->
+      <div id="console-view" class="view-wrapper">
+        <div class="view-header">
+          <h3>Console</h3>
+          <div class="console-actions">
+            <button id="console-interrupt-btn" class="btn icon-btn warning" title="Interrupt (Ctrl+C) - Stop running program">
+              <span style="font-weight:900; font-family:monospace;">^C</span>
+            </button>
+            <button id="console-reset-btn" class="btn icon-btn" title="Soft Reset (Ctrl+D) - Restart device">
+              <span style="font-weight:900; font-family:monospace;">^D</span>
+            </button>
+            <div style="width:1px; height:15px; background:var(--border-color); margin:0 8px;"></div>
+            <button id="console-download-btn" class="btn icon-btn" title="Download Console Log">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+            <button id="clear-console-btn" class="btn icon-btn" title="Clear Console">
+              <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="console-output" id="console-output"></div>
+        <div class="console-input-wrapper">
+          <span>></span>
+          <input type="text" id="console-input" placeholder="Type command and press Enter..." autocomplete="off">
+        </div>
+      </div>
+
+      <!-- Plotter View -->
+      <div id="plotter-view" class="view-wrapper">
+        <div class="view-header">
+          <h3>Live Data Plotter</h3>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <p class="plotter-tip">Use `print("plot:NAME:COLOR:VALUE")`</p>
+            <button id="plotter-export-btn" class="btn icon-btn" title="Download Data as CSV">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="plotter-canvas-container">
+          <canvas id="plotter-canvas"></canvas>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- ============================================
+       MODALS & OVERLAYS
+  ============================================= -->
+
+  <!-- Custom Prompt -->
+  <div id="custom-prompt-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+      <p id="custom-prompt-message"></p>
+      <input type="text" id="custom-prompt-input">
+      <div class="modal-buttons">
+        <button id="custom-prompt-ok" class="btn primary">OK</button>
+        <button id="custom-prompt-cancel" class="btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Confirm -->
+  <div id="custom-confirm-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+      <p id="custom-confirm-message"></p>
+      <div class="modal-buttons">
+        <button id="custom-confirm-yes" class="btn primary">Yes</button>
+        <button id="custom-confirm-no" class="btn">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Status -->
+  <div id="upload-status-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content upload-status-content">
+      <div id="upload-status-icon" class="upload-status-icon"></div>
+      <p id="upload-status-message">Uploading...</p>
+    </div>
+  </div>
+
+  <!-- Extension Selector -->
+  <div id="extension-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content extension-modal-content">
+      <div class="modal-header">
+        <h2>Choose an Extension</h2>
+        <button id="extension-modal-close-btn" class="titlebar-btn">&times;</button>
+      </div>
+      <div id="extension-list" class="extension-list"></div>
+    </div>
+  </div>
+
+  <!-- Tutorial Selector -->
+  <div id="tutorial-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content extension-modal-content">
+      <div class="modal-header">
+        <h2>Choose a Tutorial</h2>
+        <button id="tutorial-modal-close-btn" class="titlebar-btn">&times;</button>
+      </div>
+      <div id="tutorial-list" class="extension-list"></div>
+    </div>
+  </div>
+
+  <!-- AI Monitor -->
+  <div id="ai-monitor-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content ai-monitor-content">
+      <div class="modal-header" id="ai-monitor-header">
+        <h2>AI Vision Monitor</h2>
+        <button id="ai-monitor-close-btn" class="titlebar-btn">&times;</button>
+      </div>
+      <div class="ai-monitor-controls">
+        <button class="ai-monitor-toggle" data-model="face">Face Landmarks</button>
+        <button class="ai-monitor-toggle" data-model="hand">Hand Gesture</button>
+        <button class="ai-monitor-toggle" data-model="classification">Image Classify</button>
+        <button class="ai-monitor-toggle" data-model="detection">Object Detect</button>
+        <button class="ai-monitor-toggle" data-model="custom" style="display: none;">Custom Model</button>
+      </div>
+      <div class="ai-monitor-body">
+        <div class="ai-monitor-video-container">
+          <canvas id="ai-monitor-canvas"></canvas>
+        </div>
+        <div class="ai-monitor-data-container">
+          <pre id="ai-monitor-data-output"><p class="ai-monitor-placeholder">Waiting for data...</p></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New File Modal -->
+  <div id="new-file-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content" style="min-width: 450px;">
+      <div class="modal-header">
+        <h2>Create New File</h2>
+      </div>
+      <div class="form-group" style="margin-top: 1rem;">
+        <label for="new-file-name-input">File Name</label>
+        <input type="text" id="new-file-name-input" placeholder="e.g., my_library.py or lib/sensor.py">
+        <small style="color: var(--text-tertiary); margin-top: 0.5rem;">For files in a library folder, use the format `lib/filename.py`.</small>
+      </div>
+      <div class="modal-buttons">
+        <button id="new-file-cancel-btn" class="btn secondary">Cancel</button>
+        <button id="new-file-create-btn" class="btn primary" disabled>Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Block Genius Toast -->
+  <div id="block-genius-toast" class="block-genius-toast">
+    <div class="genius-header">
+      <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01 9 11.01"/></svg>
+      <h3 id="genius-title">Block Genius</h3>
+      <button id="genius-close-btn">&times;</button>
+    </div>
+    <div class="genius-body">
+      <div class="genius-text">
+        <p id="genius-description">A helpful tip about this block.</p>
+      </div>
+      <div class="genius-diagram">
+        <img id="genius-image" src="" alt="Wiring Diagram">
+      </div>
+    </div>
+  </div>
+
+  <!-- IoT Dashboard Builder Modal -->
+  <div id="iot-dashboard-modal" class="modal-backdrop" style="display: none;">
+    <div class="iot-dashboard-content">
+      <!-- Dashboard Header -->
+      <div class="canvas-header">
+        <h2 class="canvas-title">IoT Dashboard Builder</h2>
+        <div class="view-toggle">
+          <button class="view-toggle-btn active" data-view="laptop">Desktop</button>
+          <button class="view-toggle-btn" data-view="mobile">Mobile</button>
+        </div>
+        <div class="canvas-actions">
+          <button id="dashboard-save-template-btn" class="btn">Save Template</button>
+          <button id="dashboard-load-template-btn" class="btn">Load Template</button>
+          <button id="dashboard-clear-btn" class="btn">Clear Canvas</button>
+          <button id="dashboard-export-btn" class="btn primary">Generate HTML & Blocks</button>
+          <button id="dashboard-close-btn" class="titlebar-btn">&times;</button>
+        </div>
+      </div>
+
+      <!-- Dashboard Body -->
+      <div class="iot-dashboard-body">
+        <!-- Column 1: Component Palette -->
+        <aside class="palette">
+          <div class="palette-section">
+            <h3>Controls</h3>
+            <div class="component-list">
+              <div class="component-item" data-type="button" draggable="true"><div class="component-icon">🔘</div><div class="component-name">Button</div></div>
+              <div class="component-item" data-type="slider" draggable="true"><div class="component-icon">🎚️</div><div class="component-name">Slider</div></div>
+              <div class="component-item" data-type="toggle" draggable="true"><div class="component-icon">🔛</div><div class="component-name">Toggle</div></div>
+              <div class="component-item" data-type="color-picker" draggable="true"><div class="component-icon">🎨</div><div class="component-name">Color</div></div>
+              <div class="component-item" data-type="joystick" draggable="true"><div class="component-icon">🕹️</div><div class="component-name">Joystick</div></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <h3>Displays</h3>
+            <div class="component-list">
+              <div class="component-item" data-type="gauge" draggable="true"><div class="component-icon">🌡️</div><div class="component-name">Gauge</div></div>
+              <div class="component-item" data-type="line-chart" draggable="true"><div class="component-icon">📉</div><div class="component-name">Line Chart</div></div>
+              <div class="component-item" data-type="led" draggable="true"><div class="component-icon">💡</div><div class="component-name">LED</div></div>
+              <div class="component-item" data-type="label" draggable="true"><div class="component-icon">🔤</div><div class="component-name">Text</div></div>
+              <div class="component-item" data-type="card" draggable="true"><div class="component-icon">🃏</div><div class="component-name">Card</div></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <h3>Layout & Text</h3>
+            <div class="component-list">
+              <div class="component-item" data-type="container" draggable="true"><div class="component-icon">🖼️</div><div class="component-name">Container</div></div>
+              <div class="component-item" data-type="heading" draggable="true"><div class="component-icon"><strong>H1</strong></div><div class="component-name">Heading</div></div>
+              <div class="component-item" data-type="paragraph" draggable="true"><div class="component-icon">¶</div><div class="component-name">Paragraph</div></div>
+              <div class="component-item" data-type="image" draggable="true"><div class="component-icon">🏞️</div><div class="component-name">Image</div></div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Column 2: The Canvas -->
+        <main class="canvas-container">
+          <div class="canvas" id="dashboard-canvas"></div>
+        </main>
+
+        <!-- Column 3: Properties Panel -->
+        <aside class="properties-panel">
+          <div class="properties-header">Properties</div>
+          <div id="properties-content">
+            <div id="no-selection-prompt"><div class="icon">👆</div><p>Select a component to edit.</p></div>
+
+            <!-- General Properties -->
+            <div class="property-group" data-prop-group="general">
+              <h4 class="prop-title">General</h4>
+              <div class="property-item" data-prop="id"><label for="prop-id">Unique ID</label><input type="text" id="prop-id"></div>
+            </div>
+
+            <!-- Text Properties -->
+            <div class="property-group" data-prop-group="text">
+              <h4 class="prop-title">Text</h4>
+              <div class="property-item" data-prop="label"><label for="prop-label">Label / Text</label><textarea id="prop-label" rows="3"></textarea></div>
+              <div class="property-item" data-prop="fontSize"><label for="prop-fontSize">Font Size (px)</label><input type="number" id="prop-fontSize"></div>
+              <div class="property-item" data-prop="fontWeight"><label for="prop-fontWeight">Font Weight</label><select id="prop-fontWeight"><option value="400">Normal</option><option value="700">Bold</option></select></div>
+              <div class="property-item" data-prop="textAlign"><label for="prop-textAlign">Alignment</label><select id="prop-textAlign"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></div>
+            </div>
+
+            <!-- Appearance Properties -->
+            <div class="property-group" data-prop-group="appearance">
+              <h4 class="prop-title">Appearance</h4>
+              <div class="property-item" data-prop="color"><label for="prop-color">Primary/Text Color</label><input type="color" id="prop-color" value="#007aff"></div>
+              <div class="property-item" data-prop="bgColor"><label for="prop-bgColor">Background Color</label><input type="color" id="prop-bgColor" value="#ffffff"></div>
+              <div class="property-item" data-prop="borderColor"><label for="prop-borderColor">Border Color</label><input type="color" id="prop-borderColor" value="#e5e7eb"></div>
+              <div class="property-item" data-prop="borderRadius"><label for="prop-borderRadius">Corner Radius (px)</label><input type="number" id="prop-borderRadius"></div>
+              <div class="property-item" data-prop="shape"><label for="prop-shape">Shape</label><select id="prop-shape"><option value="rectangle">Rectangle</option><option value="rounded">Rounded</option><option value="circle">Circle</option></select></div>
+            </div>
+
+            <!-- Layout Properties -->
+            <div class="property-group" data-prop-group="layout">
+              <h4 class="prop-title">Layout</h4>
+              <div class="property-item" data-prop="width"><label for="prop-width">Width (px)</label><input type="number" id="prop-width"></div>
+              <div class="property-item" data-prop="height"><label for="prop-height">Height (px)</label><input type="number" id="prop-height"></div>
+              <div class="property-item" data-prop="radius" style="display: none;"><label for="prop-radius">Radius (px)</label><input type="number" id="prop-radius"></div>
+              
+            </div>
+
+            <!-- Data Properties -->
+            <div class="property-group" data-prop-group="data">
+              <h4 class="prop-title">Data & Values</h4>
+              <div class="property-item" data-prop="value"><label for="prop-value">Default Value</label><input type="text" id="prop-value"></div>
+              <div class="property-item" data-prop="min"><label for="prop-min">Min Value</label><input type="number" id="prop-min"></div>
+              <div class="property-item" data-prop="max"><label for="prop-max">Max Value</label><input type="number" id="prop-max"></div>
+              <div class="property-item" data-prop="valueX" style="display: none;"><label for="prop-valueX">X Value</label><input type="number" id="prop-valueX" readonly></div>
+              <div class="property-item" data-prop="valueY" style="display: none;"><label for="prop-valueY">Y Value</label><input type="number" id="prop-valueY" readonly></div>
+              <div class="property-item" data-prop="src"><label for="prop-src">Image URL</label><input type="text" id="prop-src"></div>
+              <div class="property-item" data-prop="colorOn"><label for="prop-colorOn">"ON" Color</label><input type="color" id="prop-colorOn" value="#34c759"></div>
+              <div class="property-item" data-prop="colorOff"><label for="prop-colorOff">"OFF" Color</label><input type="color" id="prop-colorOff" value="#555555"></div>
+            </div>
+
+            <!-- Transform Properties -->
+<!-- Transform Properties -->
+<div class="property-group" data-prop-group="transform">
+    <h4 class="prop-title">Transform</h4>
+    <div class="property-item" style="flex-direction: row; justify-content: space-around; align-items: center;">
+        <button id="prop-rotate-left" class="btn icon-btn" title="Rotate Left (-90°)" style="width: 44px; height: 44px; border-radius: 50%;">
+            <i class="fa-solid fa-rotate-left"></i>
+        </button>
+        <button id="prop-rotate-right" class="btn icon-btn" title="Rotate Right (+90°)" style="width: 44px; height: 44px; border-radius: 50%;">
+            <i class="fa-solid fa-rotate-right"></i>
+        </button>
+        <button id="prop-flip-h" class="btn icon-btn" title="Flip Horizontal" style="width: 44px; height: 44px; border-radius: 50%;">
+            <i class="fa-solid fa-arrows-left-right"></i>
+        </button>
+    </div>
+</div>
+
+            <!-- Actions -->
+            <div class="property-group" data-prop-group="actions">
+              <button class="btn-delete" id="delete-component">Delete Component</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Export Dashboard Modal -->
+  <div class="modal-overlay" id="export-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Export Dashboard</h2>
+        <button class="modal-close" id="modal-close-btn">&times;</button>
+      </div>
+      <div class="export-section">
+        <h3>MicroPython HTML String</h3>
+        <p class="plotter-tip">Copy this and paste it into a text block in your code.</p>
+        <textarea id="export-code-micropython" readonly></textarea>
+        <button id="copy-micropython-btn" class="copy-btn">Copy for MicroPython</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Device File Manager Modal -->
+  <div id="file-manager-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content" style="min-width: 700px; max-width: 80vw;">
+      <div class="modal-header">
+        <h2>Device File Manager</h2>
+        <button id="file-manager-close-btn" class="titlebar-btn">&times;</button>
+      </div>
+
+      <div id="file-manager-body">
+        <!-- Breadcrumbs -->
+        <div id="file-manager-breadcrumbs" class="breadcrumbs"></div>
+
+        <!-- Header for the file list -->
+        <div class="file-list-header">
+          <div class="file-header-name">Name</div>
+          <div class="file-header-actions">Actions</div>
+        </div>
+
+        <!-- The actual list of files and folders -->
+        <div id="file-list-container">
+          <p>Connecting to device... Click "Refresh" to list files.</p>
+        </div>
+      </div>
+
+      <div class="modal-buttons" style="justify-content: space-between;">
+        <!-- Left Group: Global & Utility Actions -->
+        <div class="button-group-left">
+          <button id="library-manager-btn" class="btn secondary">Library Manager</button>
+          <button id="device-info-btn" class="btn secondary">Device Info</button>
+          <button id="save-to-device-btn" class="btn secondary">Save Code to Device</button>
+          <button id="export-project-btn" class="btn secondary">Save Project to Computer</button>
+          <button id="clean-upload-btn" class="btn warning">Clean & Upload</button>
+        </div>
+        <!-- Right Group: List-Specific Actions -->
+        <div class="button-group-right">
+          <input type="file" id="file-manager-upload-input" style="display: none;" />
+          <button id="file-manager-upload-btn" class="btn secondary">Upload File</button>
+          <button id="file-manager-refresh-btn" class="btn primary">Refresh</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Device Info Modal -->
+  <div id="device-info-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content" style="min-width: 550px;">
+      <div class="modal-header">
+        <h2>Device Information</h2>
+        <button id="device-info-close-btn" class="titlebar-btn">&times;</button>
+      </div>
+      <div id="device-info-content">
+        <p class="device-info-loading">Querying device...</p>
+        <!-- Info will be populated here by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Library Manager Modal -->
+  <div id="library-manager-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content" style="min-width: 600px;">
+      <div class="modal-header">
+        <h2>Install a Library</h2>
+        <button id="library-manager-close-btn" class="titlebar-btn">&times;</button>
+      </div>
+
+      <div id="library-list-container" style="max-height: 60vh; overflow-y: auto; padding: 1rem 0;">
+        <!-- Library list will be injected here -->
+      </div>
+
+      <div class="library-custom-form" style="background: var(--bg-inset); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border-color);">
+        <h4 style="margin-top: 0; margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase; color: var(--text-secondary);">Add from GitHub / URL</h4>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <input type="text" id="lib-custom-name" placeholder="Filename (e.g. mysensor)" style="flex: 1; margin: 0;">
+          <input type="text" id="lib-custom-url" placeholder="Raw URL (e.g. https://raw.github...)" style="flex: 2; margin: 0;">
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="lib-custom-desc" placeholder="Description (optional)" style="flex: 1; margin: 0;">
+          <button id="lib-custom-add-btn" class="btn primary" style="padding: 8px 16px;">Install</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WebREPL Modal -->
+  <div id="webrepl-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content" style="min-width: 550px;">
+      <div class="webrepl-tabs">
+        <button id="webrepl-connect-tab" class="webrepl-tab-btn active">Connect to Existing Device</button>
+        <button id="webrepl-setup-tab" class="webrepl-tab-btn">New Device Setup</button>
+      </div>
+
+      <!-- TAB 1: Connect to an already configured device -->
+      <div id="webrepl-connect-content" class="webrepl-tab-content active">
+        <h2 class="modal-title">Connect via WebREPL</h2>
+        <p>Enter the IP address and password of your device.</p>
+
+        <div class="form-group">
+          <label for="webrepl-ip-input">Device IP Address</label>
+          <input type="text" id="webrepl-ip-input" placeholder="e.g., 192.168.1.100">
+        </div>
+
+        <div class="form-group">
+          <label for="webrepl-connect-password">WebREPL Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="webrepl-connect-password" placeholder="Enter password">
+            <button class="password-toggle-btn" type="button" title="Show/Hide Password">👁️</button>
+          </div>
+        </div>
+
+        <div class="modal-buttons">
+          <button id="webrepl-cancel-btn" class="btn secondary">Cancel</button>
+          <button id="webrepl-connect-btn" class="btn primary">Connect</button>
+        </div>
+      </div>
+
+      <!-- TAB 2: Setup a new device from scratch -->
+      <div id="webrepl-setup-content" class="webrepl-tab-content">
+        <h2 class="modal-title">New WebREPL Device Setup</h2>
+        <p>This will configure your device to connect to Wi-Fi and start WebREPL automatically. A **USB connection is required** for this one-time setup.</p>
+        <div class="form-group">
+          <label for="webrepl-setup-ssid">Wi-Fi Network Name (SSID)</label>
+          <input type="text" id="webrepl-setup-ssid" placeholder="Your Wi-Fi Name">
+        </div>
+        <div class="form-group">
+          <label for="webrepl-setup-wifi-pass">Wi-Fi Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="webrepl-setup-wifi-pass" name="wifi-password" autocomplete="current-password" placeholder="Your Wi-Fi Password">
+            <button class="password-toggle-btn" type="button" title="Show/Hide Password">👁️</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="webrepl-setup-repl-pass">WebREPL Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="webrepl-setup-repl-pass" name="repl-password" autocomplete="new-password" placeholder="Create a password">
+            <button class="password-toggle-btn" type="button" title="Show/Hide Password">👁️</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="webrepl-setup-repl-pass-confirm">Confirm WebREPL Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="webrepl-setup-repl-pass-confirm" name="repl-password-confirm" autocomplete="new-password" placeholder="Confirm the password">
+            <button class="password-toggle-btn" type="button" title="Show/Hide Password">👁️</button>
+          </div>
+        </div>
+        <div id="webrepl-setup-status" class="setup-status"></div>
+        <div class="modal-buttons">
+          <button id="webrepl-setup-cancel-btn" class="btn secondary">Cancel</button>
+          <button id="webrepl-setup-btn" class="btn primary">Start Setup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLE Modal -->
+  <div id="ble-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content" style="min-width: 550px;">
+      <div class="webrepl-tabs">
+        <button id="ble-connect-tab" class="webrepl-tab-btn active">Connect to Device</button>
+        <button id="ble-setup-tab" class="webrepl-tab-btn">New Device Setup</button>
+      </div>
+
+      <!-- TAB 1: Connect to an already configured device -->
+      <div id="ble-connect-content" class="webrepl-tab-content active">
+        <h2 class="modal-title">Connect via Bluetooth (WebREPL)</h2>
+        <p>Scan for nearby ESP32 devices that have been set up for BLE WebREPL.</p>
+
+        <div id="ble-device-list" style="margin: 1rem 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius);">
+          <!-- Scanned devices will appear here -->
+          <p style="padding: 1rem; color: var(--text-secondary);">Click "Scan" to find devices.</p>
+        </div>
+
+        <div class="modal-buttons">
+          <button id="ble-cancel-btn" class="btn secondary">Cancel</button>
+          <button id="ble-scan-btn" class="btn primary">Scan for Devices</button>
+        </div>
+      </div>
+
+      <!-- TAB 2: Setup a new device from scratch -->
+      <div id="ble-setup-content" class="webrepl-tab-content">
+        <h2 class="modal-title">New BLE WebREPL Device Setup</h2>
+        <p>This will configure your ESP32 to start a BLE REPL automatically. A **USB connection is required** for this one-time setup.</p>
+        <div class="form-group">
+          <label for="ble-setup-name">Bluetooth Device Name</label>
+          <input type="text" id="ble-setup-name" placeholder="e.g., MyESP32-REPL" value="ESP32-BLE-REPL">
+        </div>
+        <div id="ble-setup-status" class="setup-status"></div>
+        <div class="modal-buttons">
+          <button id="ble-setup-cancel-btn" class="btn secondary">Cancel</button>
+          <button id="ble-setup-btn" class="btn primary">Start Setup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- External Scripts -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <script type="module" src="./src/ide/ide-entry.js"></script>
+
+</body>
+</html>

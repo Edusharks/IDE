@@ -1,0 +1,268 @@
+{
+  "components": [
+    {
+      "id": "battery_module",
+      "name": "DC Power Supply",
+      "category": "Power",
+      "description": "Adjustable DC Voltage Source",
+      "image": "assets/components/battery.png",
+      "voltage": 5.0,
+      "current": 1.0,
+      "isSvg": false,
+      "pins": [
+        { "id": "POS", "name": "Positive (+)", "type": "power", "pos": { "x": 30, "y": 20 } },
+        { "id": "NEG", "name": "Negative (-)", "type": "gnd", "pos": { "x": 70, "y": 20 } }
+      ]
+    },
+    {
+      "id": "pushbutton",
+      "name": "Button Module",
+      "category": "Inputs & Sensors",
+      "description": "Digital Pushbutton Module with LED",
+      "image": "assets/components/pushbutton.png",
+      "capColor": "#333333",
+      "isSvg": false,
+      "pins": [
+        { "id": "GND", "name": "GND", "type": "gnd", "pos": { "x": 35, "y": 75 } },
+        { "id": "VCC", "name": "VCC", "type": "power", "pos": { "x": 50, "y": 75 } },
+        { "id": "SIG", "name": "Signal", "type": "digital", "pos": { "x": 65, "y": 75 } }
+      ]
+    },
+    {
+      "id": "slide_switch",
+      "name": "Slide Switch",
+      "category": "Inputs & Sensors",
+      "description": "SPDT Slide Switch module",
+      "image": "assets/components/slide_switch.png",
+      "isSvg": false,
+      "handleColor": "#151515",
+      "pins": [
+        { "id": "p1", "name": "Pin 1", "type": "passive", "pos": { "x": 31.25, "y": 64.0 } },
+        { "id": "com", "name": "Common", "type": "passive", "pos": { "x": 50.0, "y": 64.0 } },
+        { "id": "p2", "name": "Pin 2", "type": "passive", "pos": { "x": 68.75, "y": 64.0 } }
+      ]
+    },
+    {
+      "id": "potentiometer",
+      "name": "Potentiometer",
+      "category": "Inputs & Sensors",
+      "description": "Rotary Potentiometer Module",
+      "image": "assets/components/potentiometer.png",
+      "isSvg": false,
+      "resistance": 10,
+      "unit": "kΩ",
+      "knobColor": "#2c3e50",
+      "pins": [
+        { "id": "GND", "name": "GND", "type": "gnd", "pos": { "x": 38.75, "y": 75.0 } },
+        { "id": "SIG", "name": "Signal", "type": "analog", "pos": { "x": 50.0, "y": 75.0 } },
+        { "id": "VCC", "name": "VCC", "type": "power", "pos": { "x": 61.25, "y": 75.0 } }
+      ]
+    },
+    {
+      "id": "ultrasonic",
+      "name": "Ultrasonic Sensor",
+      "category": "Inputs & Sensors",
+      "description": "HC-SR04 Distance Sensor",
+      "image": "assets/components/ultrasonic.png",
+      "isSvg": false,
+      "pins": [
+        { "id": "VCC", "name": "VCC", "type": "power", "pos": { "x": 40.8, "y": 92.3 } },
+        { "id": "Trig", "name": "Trig", "type": "digital", "pos": { "x": 47.0, "y": 92.3 } },
+        { "id": "Echo", "name": "Echo", "type": "digital", "pos": { "x": 53.0, "y": 92.3 } },
+        { "id": "GND", "name": "GND", "type": "gnd", "pos": { "x": 59.2, "y": 92.3 } }
+      ]
+    },
+    {
+      "id": "ir_sensor",
+      "name": "IR Sensor",
+      "category": "Inputs & Sensors",
+      "description": "Infrared Obstacle Avoidance Sensor",
+      "image": "assets/components/ir_sensor.png",
+      "isSvg": false,
+      "pins": [
+        { "id": "OUT", "name": "Output", "type": "digital", "pos": { "x": 26, "y": 93.5 } },
+        { "id": "GND", "name": "GND", "type": "gnd", "pos": { "x": 50.0, "y": 93.5 } },
+        { "id": "VCC", "name": "VCC", "type": "power", "pos": { "x": 74, "y": 93.5 } }
+      ]
+    },
+    {
+      "id": "ldr",
+      "name": "LDR Sensor",
+      "category": "Inputs & Sensors",
+      "description": "Light Sensor Module",
+      "image": "assets/components/ldr.png",
+      "isSvg": false,
+      "pins": [
+        { "id": "OUT", "name": "Output", "type": "digital", "pos": { "x": 25.55, "y": 96.4 } },
+        { "id": "GND", "name": "GND", "type": "gnd", "pos": { "x": 50.0, "y": 96.4 } },
+        { "id": "VCC", "name": "VCC", "type": "power", "pos": { "x": 74.44, "y": 96.4 } }
+      ]
+    },
+    {
+      "id": "pir_sensor",
+      "name": "PIR Sensor",
+      "category": "Inputs & Sensors",
+      "description": "HC-SR501 Motion Sensor",
+      "image": "assets/components/pir_sensor.png",
+      "isSvg": false,
+      "pins": [
+        { "id": "GND", "name": "GND", "type": "gnd", "pos": { "x": 40.0, "y": 91.0 } },
+        { "id": "OUT", "name": "Output", "type": "digital", "pos": { "x": 50.0, "y": 91.0 } },
+        { "id": "VCC", "name": "VCC", "type": "power", "pos": { "x": 60.0, "y": 91.0 } }
+      ]
+    },
+    {
+      "id": "dht11",
+      "name": "DHT11 Sensor",
+      "category": "Inputs & Sensors",
+      "description": "Temperature & Humidity Sensor",
+      "image": "assets/components/dht11.png",
+      "isSvg": false,
+      "pins": [
+        { "id": "GND", "name": "GND", "type": "gnd", "pos": { "x": 31.25, "y": 91.7 } },
+        { "id": "DATA", "name": "DATA", "type": "digital", "pos": { "x": 50.0, "y": 91.7 } },
+        { "id": "VCC", "name": "VCC", "type": "power", "pos": { "x": 68.75, "y": 91.7 } }
+      ]
+    },
+    {
+      "id": "soil_moisture",
+      "name": "Soil Moisture",
+      "category": "Inputs & Sensors",
+      "description": "Soil Moisture Sensor with Probe",
+      "image": "assets/components/soil_moisture.png",
+      "isSvg": false,
+      "moistureLevel": 0.5,
+      "pins": [
+        { "id": "AO", "name": "Analog Out", "type": "analog", "pos": { "x": 23.0, "y": 91.5 } },
+        { "id": "DO", "name": "Digital Out", "type": "digital", "pos": { "x": 28.5, "y": 91.5 } },
+        { "id": "GND", "name": "GND", "type": "gnd", "pos": { "x": 34.0, "y": 91.5 } },
+        { "id": "VCC", "name": "VCC", "type": "power", "pos": { "x": 39.5, "y": 91.5 } }
+      ]
+    },
+    {
+      "id": "led_red",
+      "name": "LED Module",
+      "category": "Outputs & Actuators",
+      "description": "PWM Controllable LED Module",
+      "image": "assets/components/led_pcb.png",
+      "isSvg": false,
+      "ledColor": "#ff3333",
+      "pins": [
+        { "id": "GND", "name": "GND (-)", "type": "gnd", "pos": { "x": 40.0, "y": 78.3 } },
+        { "id": "VCC", "name": "VCC (+)", "type": "power", "pos": { "x": 50.0, "y": 78.3 } },
+        { "id": "SIG", "name": "Signal (S)", "type": "pwm", "pos": { "x": 60.0, "y": 78.3 } }
+      ]
+    },
+    {
+      "id": "led_rgb",
+      "name": "RGB LED Module",
+      "category": "Outputs & Actuators",
+      "description": "Common Cathode RGB LED",
+      "image": "assets/components/led_rgb_pcb.png",
+      "isSvg": false,
+      "red": 0, "green": 0, "blue": 0,
+      "pins": [
+        { "id": "GND", "name": "GND (-)", "type": "gnd", "pos": { "x": 38.6, "y": 72.5 } },
+        { "id": "R", "name": "Red", "type": "pwm", "pos": { "x": 47.1, "y": 72.5 } },
+        { "id": "G", "name": "Green", "type": "pwm", "pos": { "x": 55.7, "y": 72.5 } },
+        { "id": "B", "name": "Blue", "type": "pwm", "pos": { "x": 64.3, "y": 72.5 } }
+      ]
+    },
+    {
+      "id": "buzzer",
+      "name": "Piezo Buzzer",
+      "category": "Outputs & Actuators",
+      "description": "Active Piezo Buzzer",
+      "image": "assets/components/buzzer.png",
+      "isSvg": false,
+      "pins": [
+        { "id": "GND", "name": "GND (-)", "type": "gnd", "pos": { "x": 45.0, "y": 84.4 } },
+        { "id": "SIG", "name": "Signal (+)", "type": "pwm", "pos": { "x": 55.0, "y": 84.4 } }
+      ]
+    },
+    {
+      "id": "neopixel_strip",
+      "name": "NeoPixel Strip",
+      "category": "Outputs & Actuators",
+      "description": "Addressable RGB LED Strip",
+      "image": "assets/components/neopixel_strip.png",
+      "isSvg": false,
+      "numPixels": 2,
+      "pins": [
+        { "id": "GND", "name": "GND", "type": "gnd", "pos": { "x": 5, "y": 20 } },
+        { "id": "DIN", "name": "Data In", "type": "digital", "pos": { "x": 5, "y": 50 } },
+        { "id": "5V", "name": "5V", "type": "power", "pos": { "x": 5, "y": 80 } }
+      ]
+    },
+    {
+      "id": "neopixel_ring",
+      "name": "NeoPixel Ring",
+      "category": "Outputs & Actuators",
+      "description": "RGB LED Ring (Dynamic Size)",
+      "image": "assets/components/neopixel_ring.png",
+      "isSvg": false,
+      "numPixels": 12,
+      "pins": [
+        { "id": "GND", "name": "GND", "type": "gnd", "pos": { "x": 41.0, "y": 92.3 } },
+        { "id": "VCC", "name": "VCC", "type": "power", "pos": { "x": 47.0, "y": 92.3 } },
+        { "id": "DIN", "name": "Data In", "type": "digital", "pos": { "x": 53.0, "y": 92.3 } },
+        { "id": "DOUT", "name": "Data Out", "type": "digital", "pos": { "x": 59.0, "y": 92.3 } }
+      ]
+    },
+    {
+      "id": "oled_i2c",
+      "name": "OLED Display",
+      "category": "Displays",
+      "description": "0.96\" I2C OLED Display",
+      "image": "assets/components/oled_i2c.png",
+      "isSvg": false,
+      "i2cAddress": "0x3C",
+      "pins": [
+        { "id": "GND", "name": "GND", "type": "gnd", "pos": { "x": 36.0, "y": 8.0 } },
+        { "id": "VCC", "name": "VCC", "type": "power", "pos": { "x": 45.0, "y": 8.0 } },
+        { "id": "SCL", "name": "SCL", "type": "digital", "pos": { "x": 54.0, "y": 8.0 } },
+        { "id": "SDA", "name": "SDA", "type": "digital", "pos": { "x": 63.0, "y": 8.0 } }
+      ]
+    },
+    {
+      "id": "dc_motor",
+      "name": "TT Gear Motor",
+      "category": "Outputs & Actuators",
+      "description": "DC Gearbox Motor with Wheel",
+      "image": "assets/components/dc_motor.png",
+      "isSvg": false,
+      "pins": [
+        { "id": "VCC", "name": "VCC (+)", "type": "power", "pos": { "x": 20.0, "y": 72.1 } },
+        { "id": "GND", "name": "GND (-)", "type": "gnd", "pos": { "x": 20.0, "y": 79.8 } }
+      ]
+    },
+    {
+      "id": "servo_motor",
+      "name": "Positional Servo Motor",
+      "category": "Outputs & Actuators",
+      "description": "Standard Positional Servo (SG90)",
+      "image": "assets/components/servo_motor.png",
+      "isSvg": false,
+      "hornType": "single",
+      "pins": [
+        { "id": "SIG", "name": "Signal (Orange)", "type": "pwm", "pos": { "x": 104, "y": 373 } },
+        { "id": "VCC", "name": "VCC (Red)", "type": "power", "pos": { "x": 130, "y": 373 } },
+        { "id": "GND", "name": "GND (Brown)", "type": "gnd", "pos": { "x": 156, "y": 373 } }
+      ]
+    },
+    {
+      "id": "servo_continuous",
+      "name": "Continuous Rotation Servo",
+      "category": "Outputs & Actuators",
+      "description": "360° Continuous Servo (FS90R)",
+      "image": "assets/components/servo_continuous.png",
+      "isSvg": false,
+      "hornType": "single",
+      "pins": [
+        { "id": "SIG", "name": "Signal (Orange)", "type": "pwm", "pos": { "x": 104, "y": 373} },
+        { "id": "VCC", "name": "VCC (Red)", "type": "power", "pos": { "x": 130, "y": 373 } },
+        { "id": "GND", "name": "GND (Brown)", "type": "gnd", "pos": { "x": 156, "y": 373 } }
+      ]
+    }
+  ]
+}
